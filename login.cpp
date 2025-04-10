@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-
+string nama = "iyus";
 int main(){
     string username = "admin123";
     string password = "pw123";
