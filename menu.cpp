@@ -4,8 +4,12 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
+#include "json.hpp"
+// #include "login.cpp"
 
 using namespace std;
+using json = nlohmann::json;
 
 const int MAKS_DATA = 100;
 
@@ -130,7 +134,7 @@ bool isExpired(const string& exp_date) {
 }
 
 // Fungsi tampilkan isi kulkas
-void display() {
+void display(json& data, string& Id) {
     if (jumlah_data == 0) {
         cout << "Kulkas kosong.\n";
     } else {
@@ -241,11 +245,42 @@ void hapusBarang() {
     cout << "\nKembali ke menu utama...\n" << endl;
 }
 
+json loadData() {
+    ifstream file("users.json");
+    
+    if (!file.is_open()) {
+        cerr << "Error: Failed to open " << "users.json" << endl;
+        return {};  // Return empty JSON object
+    }
+
+    try {
+        return json::parse(file);
+    } 
+    catch (const json::parse_error& e) {
+        cerr << "JSON parse error at byte " << e.byte << ": " << e.what() << endl;
+    }
+    catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
+    }
+
+    return {};
+}
+
+void indexLogin(string& Id);
 // Program utama
 int main() {
-    int choices;
+    json data = loadData();
+    if (data.empty()) {
+        cout << "No data loaded or file is empty" << endl;
+    }
 
+    int choices;
+    string Id;
+    while (Id.empty()){
+        indexLogin(Id);
+    }
     while (true) {
+        cout<< Id << endl;
         cout << "========== SMART FRIDGE ==========\n";
         cout << "1. Display Fridge Contents\n";
         cout << "2. Add Item to Fridge\n";
@@ -256,12 +291,14 @@ int main() {
         cin.ignore(); // untuk membersihkan buffer newline
 
         if (choices == 1) {
-            display();
+            display(data,Id);
         } else if (choices == 2) {
             input();
         } else if (choices == 3) {
             hapusBarang();
-        } else if (choices == 4) {
+        } if (choices == 33) {
+            indexLogin(Id);
+        }else if (choices == 4) {
             cout << "Terima kasih telah menggunakan Smart Fridge!\n";
             break;  // Keluar dari loop dan program
         } else {
