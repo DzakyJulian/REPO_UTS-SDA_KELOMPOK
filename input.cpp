@@ -92,3 +92,26 @@ void input() {
     daftar_barang[jumlah_data].jumlah_stok = jumlah_stok;
     daftar_barang[jumlah_data].tanggal_kadaluarsa = tanggal_kadaluarsa;
     jumlah_data++;
+
+    // Simpan ke file JSON
+    // ofstream fileJson("users.json");
+    // if (!fileJson) {
+    //     cout << "Gagal membuka file untuk menyimpan data." << endl;
+    //     return;
+    // }
+
+    // fileJson << "[" << endl;
+    // for (int i = 0; i < jumlah_data; i++) {
+    //     fileJson << "  {" << endl;
+    //     fileJson << "    \"kategori\": \"" << daftar_barang[i].kategori << "\"," << endl;
+    //     fileJson << "    \"nama_barang\": \"" << daftar_barang[i].nama_barang << "\"," << endl;
+    //     fileJson << "    \"jumlah_stok\": " << daftar_barang[i].jumlah_stok << "," << endl;
+    //     fileJson << "    \"tanggal_kadaluarsa\": \"" << daftar_barang[i].tanggal_kadaluarsa << "\"" << endl;
+    //     fileJson << "  }" << (i < jumlah_data - 1 ? "," : "") << endl;
+    // }
+    // fileJson << "]" << endl;
+
+    // fileJson.close();
+
+    // cout << "Data berhasil disimpan ke file data.json" << endl;
+}
