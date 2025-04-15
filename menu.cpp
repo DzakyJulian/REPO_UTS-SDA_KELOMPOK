@@ -1,10 +1,16 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
 const int MAKS_DATA = 100;
+
+time_t now = time(nullptr);
+tm* local_time = localtime(&now);
 
 struct Barang {
     string kategori;
@@ -15,6 +21,7 @@ struct Barang {
 
 Barang daftar_barang[MAKS_DATA];
 int jumlah_data = 0;
+
 
 // Validasi kategori
 bool validKategori(const string& kategori) {
@@ -99,19 +106,57 @@ void input() {
     cout << "\nKembali ke menu utama...\n" << endl;
 }
 
+// fungsi untuk mengecek kadaluarsa 
+bool isExpired(const string& exp_date) {
+    // Dapatkan tanggal sekarang
+    time_t now = time(nullptr);
+    tm* local_time = localtime(&now);
+    int current_day = local_time->tm_mday;
+    int current_month = local_time->tm_mon + 1;
+    int current_year = local_time->tm_year + 1900;
+
+    // Parse tanggal kadaluarsa
+    int day, month, year;
+    char sep;
+    istringstream iss(exp_date);
+    iss >> day >> sep >> month >> sep >> year;
+
+    // Bandingkan tanggal
+    if (year < current_year) return true;
+    if (year > current_year) return false;
+    if (month < current_month) return true;
+    if (month > current_month) return false;
+    return day < current_day;
+}
+
 // Fungsi tampilkan isi kulkas
 void display() {
-    cout << "======== ISI KULKAS ========\n";
     if (jumlah_data == 0) {
         cout << "Kulkas kosong.\n";
     } else {
-        cout << "ID\tKategori\tNama Barang\tJumlah Stok\tTanggal Kadaluarsa\n";
+        cout << "======== ISI KULKAS ========\n";
+        cout << left << setw(5) << "ID" << setw(15) << "Kategori" 
+             << setw(20) << "Nama Barang" << setw(15) << "Jumlah Stok"
+             << setw(20) << "Tanggal Kadaluarsa" << "Status\n";
+        
+        // Dapatkan tanggal sekarang
+        time_t now = time(nullptr);
+        tm* local_time = localtime(&now);
+        printf("Tanggal terkini: %02d/%02d/%d\n", 
+               local_time->tm_mday, 
+               local_time->tm_mon + 1, 
+               local_time->tm_year + 1900);
+             
         for (int i = 0; i < jumlah_data; i++) {
-            cout << i + 1 << "\t"  // ID dimulai dari 1
-                 << daftar_barang[i].kategori << "\t\t"
-                 << daftar_barang[i].nama_barang << "\t\t"
-                 << daftar_barang[i].jumlah_stok << "\t\t"
-                 << daftar_barang[i].tanggal_kadaluarsa << endl;
+            string status = isExpired(daftar_barang[i].tanggal_kadaluarsa) 
+                          ? "KADALUARSA" : "MASIH BAIK";
+            
+            cout << left << setw(5) << i + 1
+                 << setw(15) << daftar_barang[i].kategori
+                 << setw(20) << daftar_barang[i].nama_barang
+                 << setw(15) << daftar_barang[i].jumlah_stok
+                 << setw(20) << daftar_barang[i].tanggal_kadaluarsa
+                 << status << endl;
         }
     }
     cout << "\nKembali ke menu utama...\n" << endl;
