@@ -1,0 +1,11 @@
+[
+    {
+      "username": "miko",
+      "password": "miko123",
+      "fridgeContents": [
+        { "item": "Milk", "quantity": 2, "type": "minuman" },
+        { "item": "Cheese", "quantity": 1, "type": "makanan" }
+      ]
+    }
+  ]
+  
