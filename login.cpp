@@ -39,8 +39,8 @@ int main() {
         cout << "\nLogin success!\ndi dalam kulkas ada:\n";
 
         for (const auto& item : fridgeContents) {
-            cout << "- " << item["item"] << " ("
-                 << item["quantity"] << ") [" << item["type"] << "]\n";
+            cout << "- " << item["nama_barang"] << " ("
+                 << item["jumlah_stok"] << ") [" << item["kategori"] << "]\n";
         }
     } else {
         cout << "Login failed. password atau username salah.\n";
