@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <regex>
 
@@ -106,14 +105,94 @@ void display() {
     if (jumlah_data == 0) {
         cout << "Kulkas kosong.\n";
     } else {
-        cout << "Kategori\tNama Barang\tJumlah Stok\tTanggal Kadaluarsa\n";
+        cout << "ID\tKategori\tNama Barang\tJumlah Stok\tTanggal Kadaluarsa\n";
         for (int i = 0; i < jumlah_data; i++) {
-            cout << daftar_barang[i].kategori << "\t\t"
+            cout << i + 1 << "\t"  // ID dimulai dari 1
+                 << daftar_barang[i].kategori << "\t\t"
                  << daftar_barang[i].nama_barang << "\t\t"
                  << daftar_barang[i].jumlah_stok << "\t\t"
                  << daftar_barang[i].tanggal_kadaluarsa << endl;
         }
     }
+    cout << "\nKembali ke menu utama...\n" << endl;
+}
+
+// Fungsi untuk mencari barang berdasarkan nama barang
+void hapusBarang() {
+    if (jumlah_data == 0) {
+        cout << "Tidak ada barang yang dapat dihapus.\n";
+        return;
+    }
+
+    string keyword;
+    cout << "Masukkan kata kunci untuk mencari barang: ";
+    getline(cin, keyword);
+
+    int found_count = 0;
+
+    // Tampilkan barang yang sesuai dengan kata kunci
+    cout << "Barang yang ditemukan:\n";
+    cout << "ID\tKategori\tNama Barang\tJumlah Stok\tTanggal Kadaluarsa\n";
+    for (int i = 0; i < jumlah_data; i++) {
+        if (daftar_barang[i].nama_barang.find(keyword) != string::npos) {
+            cout << found_count + 1 << "\t"
+                 << daftar_barang[i].kategori << "\t\t"
+                 << daftar_barang[i].nama_barang << "\t\t"
+                 << daftar_barang[i].jumlah_stok << "\t\t"
+                 << daftar_barang[i].tanggal_kadaluarsa << endl;
+            found_count++;
+        }
+    }
+
+    if (found_count == 0) {
+        cout << "Tidak ada barang yang cocok dengan kata kunci '" << keyword << "'\n";
+        return;
+    }
+
+    int id;
+    cout << "Pilih ID barang yang ingin dihapus (1 - " << found_count << "): ";
+    cin >> id;
+    cin.ignore();  // Membersihkan newline
+
+    if (id < 1 || id > found_count) {
+        cout << "ID tidak valid.\n";
+        return;
+    }
+
+    // Barang yang dipilih untuk dihapus
+    int index_terhapus = -1;
+    found_count = 0;
+    for (int i = 0; i < jumlah_data; i++) {
+        if (daftar_barang[i].nama_barang.find(keyword) != string::npos) {
+            found_count++;
+            if (found_count == id) {
+                index_terhapus = i;
+                break;
+            }
+        }
+    }
+
+    // Tampilkan konfirmasi penghapusan
+    cout << "\nAnda akan menghapus barang berikut:\n";
+    cout << "Kategori: " << daftar_barang[index_terhapus].kategori << endl;
+    cout << "Nama Barang: " << daftar_barang[index_terhapus].nama_barang << endl;
+    cout << "Jumlah Stok: " << daftar_barang[index_terhapus].jumlah_stok << endl;
+    cout << "Tanggal Kadaluarsa: " << daftar_barang[index_terhapus].tanggal_kadaluarsa << endl;
+
+    char konfirmasi;
+    cout << "Apakah Anda yakin ingin menghapus barang ini? (y/n): ";
+    cin >> konfirmasi;
+    cin.ignore();
+
+    if (konfirmasi == 'y' || konfirmasi == 'Y') {
+        // Hapus barang dengan menimpa barang tersebut dengan barang terakhir
+        daftar_barang[index_terhapus] = daftar_barang[jumlah_data - 1];
+        jumlah_data--;  // Kurangi jumlah data
+        cout << "Barang berhasil dihapus.\n";
+    } else {
+        cout << "Barang tidak jadi dihapus.\n";
+    }
+
     cout << "\nKembali ke menu utama...\n" << endl;
 }
 
@@ -125,19 +204,18 @@ int main() {
         cout << "========== SMART FRIDGE ==========\n";
         cout << "1. Display Fridge Contents\n";
         cout << "2. Add Item to Fridge\n";
-        cout << "3. Remove Item from Fridge (belum tersedia)\n";
+        cout << "3. Remove Item from Fridge\n";
         cout << "4. Exit\n";
-
         cout << "Masukkan pilihan Anda: ";
         cin >> choices;
-        cin.ignore(); 
+        cin.ignore(); // untuk membersihkan buffer newline
 
         if (choices == 1) {
             display();
         } else if (choices == 2) {
             input();
         } else if (choices == 3) {
-            cout << "Fitur penghapusan belum tersedia.\n\n";
+            hapusBarang();
         } else if (choices == 4) {
             cout << "Terima kasih telah menggunakan Smart Fridge!\n";
             break;  // Keluar dari loop dan program
