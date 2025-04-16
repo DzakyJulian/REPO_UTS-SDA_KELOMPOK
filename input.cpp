@@ -40,6 +40,10 @@ void input() {
 
     while (true) {
         string kategori;
+        string input_jumlah;
+        string nama_barang;
+        string tanggal_kadaluarsa;
+
         std::cout << "Masukkan kategori (makanan/minuman): ";
         getline(cin, kategori);
         if (!validKategori(kategori)) {
@@ -47,16 +51,13 @@ void input() {
             continue;
         }
 
-        string nama_barang;
         std::cout << "Masukkan nama barang: ";
         getline(cin, nama_barang);
 
-        string input_jumlah;
         std::cout << "Masukkan jumlah stok (angka): ";
         getline(cin, input_jumlah);
         int jumlah_stok = validJumlahStok(input_jumlah);
 
-        string tanggal_kadaluarsa;
         std::cout << "Masukkan tanggal kadaluarsa (dd/mm/yyyy): ";
         getline(cin, tanggal_kadaluarsa);
         if (!validTanggal(tanggal_kadaluarsa)) {
