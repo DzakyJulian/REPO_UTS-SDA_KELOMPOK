@@ -357,81 +357,158 @@ void clearFridgeList(Node*& head) {
     }
 }
 
+void updateStok(json &data, const string &Id) {
+    int userIndex = findUserIndex(data, Id);
+    if (userIndex == -1) {
+        cout << "User tidak ditemukan.\n";
+        return;
+    }
+
+    json &fridge = data[userIndex]["fridgeContents"];
+    if (fridge.empty()) {
+        cout << "Kulkas kosong.\n";
+        return;
+    }
+
+    int kategoriPilihan;
+    do {
+        cout << "\nPilih kategori barang yang ingin diupdate:\n";
+        cout << "1. Makanan\n";
+        cout << "2. Minuman\n";
+        cout << "3. Kembali\n";
+        cout << "Pilihan: ";
+        cin >> kategoriPilihan;
+        cin.ignore();
+
+        if (kategoriPilihan == 3) {
+            cout << "Kembali ke menu utama...\n";
+            return;
+        }
+
+        string kategoriDipilih = (kategoriPilihan == 1) ? "makanan" :
+                                 (kategoriPilihan == 2) ? "minuman" : "";
+
+        if (kategoriDipilih == "") {
+            cout << "Pilihan tidak valid.\n";
+            continue;
+        }
+
+        // Filter dan tampilkan list barang sesuai kategori
+        vector<int> filtered_indices;
+        cout << "\nBarang dalam kategori '" << kategoriDipilih << "':\n";
+        cout << "ID\tNama Barang\tJumlah Stok\n";
+
+        for (int i = 0; i < fridge.size(); ++i) {
+            if (fridge[i]["kategori"] == kategoriDipilih) {
+                filtered_indices.push_back(i);
+                cout << filtered_indices.size() << "\t"
+                     << fridge[i]["nama_barang"] << "\t\t"
+                     << fridge[i]["jumlah_stok"] << endl;
+            }
+        }
+
+        if (filtered_indices.empty()) {
+            cout << "Tidak ada barang dalam kategori tersebut.\n";
+            return;
+        }
+
+        int pilihan;
+        cout << "Pilih ID barang yang ingin diupdate: ";
+        cin >> pilihan;
+        cin.ignore();
+
+        if (pilihan < 1 || pilihan > filtered_indices.size()) {
+            cout << "ID tidak valid.\n";
+            return;
+        }
+
+        int index_update = filtered_indices[pilihan - 1];
+        int stok_baru;
+        cout << "Masukkan stok baru: ";
+        cin >> stok_baru;
+        cin.ignore();
+
+        fridge[index_update]["jumlah_stok"] = stok_baru;
+
+        // Simpan ke file
+        ofstream file("users.json");
+        if (file.is_open()) {
+            file << setw(4) << data;
+            file.close();
+            cout << "Stok berhasil diperbarui dan disimpan ke file.\n";
+        } else {
+            cerr << "Gagal menyimpan ke file.\n";
+        }
+
+        break; // selesai update
+
+    } while (true);
+}
 
 void indexLogin(string &Id, json &fridgeContents);
 // Program utama
-int main()
-{
-    json data = loadData();
+int main() {
     json fridgeContents;
-    if (data.empty())
-    {
-        cout << "No data loaded or file is empty" << endl;
+    string userId;
+
+    // Login dulu
+    indexLogin(userId, fridgeContents);
+
+    // Load data dari file
+    ifstream file("users.json");
+    json data;
+    if (file.is_open()) {
+        file >> data;
+        file.close();
+    } else {
+        cerr << "Gagal membuka file users.json.\n";
+        return 1;
     }
 
-    int choices;
-    string Id;
-    while (Id.empty())
-    {
-        indexLogin(Id, fridgeContents);
-    }
+    // Tampilkan menu
+    int pilihan;
+    do {
+        cout << "\n=== MENU UTAMA ===\n";
+        cout << "1. Input Barang\n";
+        cout << "2. Tampilkan Isi Kulkas\n";
+        cout << "3. Hapus Barang\n";
+        cout << "4. Perbarui Stok Barang\n";
+        cout << "0. Keluar\n";
+        cout << "Pilih: ";
+        cin >> pilihan;
+        cin.ignore(); // flush newline
 
-    Node *fridgeList = nullptr;
-    parseFridgeToList(fridgeContents, fridgeList);
+        Node* head = nullptr;
 
-    while (true)
-    {
-        cout << "========== SMART FRIDGE ==========\n";
-        cout << "1. Display Fridge Contents\n";
-        cout << "2. Add Item to Fridge\n";
-        cout << "3. Remove Item from Fridge\n";
-        cout << "4. Exit\n";
-        cout << "Masukkan pilihan Anda: ";
-        cin >> choices;
-        cin.ignore(); // untuk membersihkan buffer newline
-
-        switch (choices)
-        {
-        case 1:
-        {
-            data = loadData(); // reload data dari file
-            int userIndex = findUserIndex(data, Id);
-            if (userIndex == -1) {
-                cout << "User tidak ditemukan!\n";
+        switch (pilihan) {
+            case 1:
+                input(data, userId);
                 break;
-            }
-
-            fridgeContents = data[userIndex]["fridgeContents"];
-
-            // Kosongkan fridgeList lama dulu
-            clearFridgeList(fridgeList); // fungsi untuk hapus semua node
-            parseFridgeToList(fridgeContents, fridgeList); // parsing ulang
-
-            display(fridgeList);
-
-            cout << "\nTekan Enter untuk melanjutkan...";
-            cin.ignore();
-            break;
+            case 2:
+                parseFridgeToList(data[findUserIndex(data, userId)]["fridgeContents"], head);
+                display(head);
+                break;
+            case 3:
+                hapusBarang(data, userId);
+                break;
+            case 4:
+                updateStok(data, userId);
+                break;
+            case 0:
+                cout << "Terima kasih. Keluar dari program.\n";
+                break;
+            default:
+                cout << "Pilihan tidak valid.\n";
         }
-        case 2:
-            input(data, Id);
-            break;
-        case 3:
-        {
-            hapusBarang(data, Id);
-            break;
+
+        // Hapus linked list jika dibuat
+        while (head != nullptr) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
         }
-        case 33: // Jika ingin hidden option
-            indexLogin(Id, fridgeContents);
-            break;
-        case 4:
-            cout << "Terima kasih telah menggunakan Smart Fridge!\n";
-            return 0; // Langsung return untuk menghentikan program
-        default:
-            cout << "Pilihan tidak valid. Silakan coba lagi.\n";
-            // Tidak perlu break karena sudah di akhir switch
-        }
-    }
+
+    } while (pilihan != 0);
 
     return 0;
 }

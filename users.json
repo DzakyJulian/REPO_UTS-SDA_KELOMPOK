@@ -1,8 +1,33 @@
-[{
-    "username": "miko",
-    "password": "miko123",
-    "fridgeContents": [
-        { "item": "Milk", "quantity": 2, "type": "minuman" },
-        { "item": "Cheese", "quantity": 1, "type": "makanan" }
-    ]
-}]
+[
+    {
+        "fridgeContents": [
+            {
+                "jumlah_stok": 2,
+                "kategori": "minuman",
+                "nama_barang": "Milk",
+                "tanggal_kadaluarsa": "02/12/2025"
+            },
+            {
+                "jumlah_stok": 1,
+                "kategori": "makanan",
+                "nama_barang": "Cheese",
+                "tanggal_kadaluarsa": "02/01/2025"
+            },
+            {
+                "jumlah_stok": 2,
+                "kategori": "minuman",
+                "nama_barang": "extrajoss",
+                "tanggal_kadaluarsa": "02/12/2023"
+            },
+            {
+                "jumlah_stok": 5,
+                "kategori": "makanan",
+                "nama_barang": "Nabati",
+                "tanggal_kadaluarsa": "32/20/2021"
+            }
+        ],
+        "id": "1",
+        "password": "miko123",
+        "username": "miko"
+    }
+]
