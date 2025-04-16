@@ -1,11 +1,12 @@
 [
-    {
-      "username": "miko",
-      "password": "miko123",
-      "fridgeContents": [
-        { "item": "Milk", "quantity": 2, "type": "minuman" },
-        { "item": "Cheese", "quantity": 1, "type": "makanan" }
-      ]
-    }
-  ]
+  {
+    "id" : "1",
+    "username": "miko",
+    "password": "miko123",
+    "fridgeContents": [
+      { "nama_barang": "Milk", "jumlah_stok": 2, "kategori": "minuman", "tanggal_kadaluarsa":"02/12/2025" },
+      { "nama_barang": "Cheese", "jumlah_stok": 1, "kategori": "makanan", "tanggal_kadaluarsa":"02/12/2025" }
+    ]
+  }
+]
   

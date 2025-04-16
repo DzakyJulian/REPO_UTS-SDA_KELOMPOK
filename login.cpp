@@ -7,7 +7,7 @@
 using json = nlohmann::json;
 using namespace std;
 
-bool login(const string& username, const string& password, json& fridgeContents) {
+bool login(const string& username, const string& password, json& fridgeContents, string& selectedId) {
     ifstream file("users.json");
     if (!file.is_open()) {
         cerr << "Error opening JSON file.\n";
@@ -18,6 +18,7 @@ bool login(const string& username, const string& password, json& fridgeContents)
     file >> users;
 
     for (const auto& user : users) {
+        selectedId = user["id"];
         if (user["username"] == username && user["password"] == password) {
             fridgeContents = user["fridgeContents"];
             return true;
@@ -27,25 +28,24 @@ bool login(const string& username, const string& password, json& fridgeContents)
     return false;
 }
 
-int main() {
-    string input_usn;
-    string input_pw;
-    bool login_status = false;
+void indexLogin(string& Id) {
+    string username, password;
+    cout << "Enter username: ";
+    cin >> username;
+    cout << "Enter password: ";
+    cin >> password;
+
     json fridgeContents;
+    if (login(username, password, fridgeContents, Id)) {
+        cout << "\nLogin success!\ndi dalam kulkas ada:\n";
 
-    cout << "================ WELCOME ================\n";
-    do {
-        cout << "Insert username : "; cin >> input_usn;
-        cout << "Insert password : "; cin >> input_pw;
-
-        if (login(input_usn, input_pw, fridgeContents)) {
-            cout << "Login Success" << endl;
-            login_status = true;
-        } else {
-            cout << "Login Failed, Check your username or password!" << endl;
+        for (const auto& item : fridgeContents) {
+            cout << "- " << item["nama_barang"] << " ("
+                 << item["jumlah_stok"] << ") [" << item["kategori"] << "]\n";
         }
+    } else {
+        cout << "Login failed. password atau username salah.\n";
+    }
 
-    } while (!login_status);
-
-    return 0;
+    // return selectedId;
 }
