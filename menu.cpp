@@ -134,8 +134,14 @@ bool isExpired(const string& exp_date) {
 }
 
 // Fungsi tampilkan isi kulkas
-void display(json& data, string& Id) {
-    if (jumlah_data == 0) {
+void display(json& dataBarang) {
+    if (dataBarang.is_array()) {
+        cout << "Jumlah elemen dalam array: " << dataBarang.size() << endl;
+    } else {
+        cout << "Data bukan array" << endl;
+    }
+
+    if (dataBarang.size()== 0) {
         cout << "Kulkas kosong.\n";
     } else {
         cout << "======== ISI KULKAS ========\n";
@@ -146,21 +152,22 @@ void display(json& data, string& Id) {
         // Dapatkan tanggal sekarang
         time_t now = time(nullptr);
         tm* local_time = localtime(&now);
-        printf("Tanggal terkini: %02d/%02d/%d\n", 
-               local_time->tm_mday, 
-               local_time->tm_mon + 1, 
-               local_time->tm_year + 1900);
+        // printf("Tanggal terkini: %02d/%02d/%d\n", 
+        //        local_time->tm_mday, 
+        //        local_time->tm_mon + 1, 
+        //        local_time->tm_year + 1900);
              
-        for (int i = 0; i < jumlah_data; i++) {
-            string status = isExpired(daftar_barang[i].tanggal_kadaluarsa) 
-                          ? "KADALUARSA" : "MASIH BAIK";
+        int i = 1;
+        for (const auto& item : dataBarang) {
+            string status = isExpired(item["tanggal_kadaluarsa"]) 
+                        ? "KADALUARSA" : "MASIH BAIK";
             
-            cout << left << setw(5) << i + 1
-                 << setw(15) << daftar_barang[i].kategori
-                 << setw(20) << daftar_barang[i].nama_barang
-                 << setw(15) << daftar_barang[i].jumlah_stok
-                 << setw(20) << daftar_barang[i].tanggal_kadaluarsa
-                 << status << endl;
+            cout << left << setw(5) << i++
+                << setw(15) << item["kategori"].get<string>()
+                << setw(20) << item["nama_barang"].get<string>()
+                << setw(15) << item["jumlah_stok"].get<int>()
+                << setw(20) << item["tanggal_kadaluarsa"].get<string>()
+                << status << endl;
         }
     }
     cout << "\nKembali ke menu utama...\n" << endl;
@@ -266,10 +273,11 @@ json loadData() {
     return {};
 }
 
-void indexLogin(string& Id);
+void indexLogin(string& Id, json& fridgeContents);
 // Program utama
 int main() {
     json data = loadData();
+    json fridgeContents;
     if (data.empty()) {
         cout << "No data loaded or file is empty" << endl;
     }
@@ -277,10 +285,9 @@ int main() {
     int choices;
     string Id;
     while (Id.empty()){
-        indexLogin(Id);
+        indexLogin(Id,fridgeContents);
     }
     while (true) {
-        cout<< Id << endl;
         cout << "========== SMART FRIDGE ==========\n";
         cout << "1. Display Fridge Contents\n";
         cout << "2. Add Item to Fridge\n";
@@ -290,19 +297,28 @@ int main() {
         cin >> choices;
         cin.ignore(); // untuk membersihkan buffer newline
 
-        if (choices == 1) {
-            display(data,Id);
-        } else if (choices == 2) {
-            input();
-        } else if (choices == 3) {
-            hapusBarang();
-        } if (choices == 33) {
-            indexLogin(Id);
-        }else if (choices == 4) {
-            cout << "Terima kasih telah menggunakan Smart Fridge!\n";
-            break;  // Keluar dari loop dan program
-        } else {
-            cout << "Pilihan tidak valid. Silakan coba lagi.\n";
+        switch (choices) {
+            case 1:
+                display(fridgeContents);
+                // Tambahkan pause setelah display
+                cout << "\nTekan Enter untuk melanjutkan...";
+                cin.ignore();
+                break;
+            case 2:
+                input();
+                break;
+            case 3:
+                hapusBarang();
+                break;
+            case 33:  // Jika ingin hidden option
+                indexLogin(Id, fridgeContents);
+                break;
+            case 4:
+                cout << "Terima kasih telah menggunakan Smart Fridge!\n";
+                return 0;  // Langsung return untuk menghentikan program
+            default:
+                cout << "Pilihan tidak valid. Silakan coba lagi.\n";
+                // Tidak perlu break karena sudah di akhir switch
         }
     }
 
