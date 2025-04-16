@@ -6,7 +6,6 @@
 #include <sstream>
 #include <fstream>
 #include "json.hpp"
-// #include "login.cpp"
 
 using namespace std;
 using json = nlohmann::json;
@@ -14,60 +13,114 @@ using json = nlohmann::json;
 const int MAKS_DATA = 100;
 
 time_t now = time(nullptr);
-tm* local_time = localtime(&now);
+tm *local_time = localtime(&now);
 
-struct Barang {
+struct Barang
+{
     string kategori;
     string nama_barang;
     int jumlah_stok;
     string tanggal_kadaluarsa;
 };
 
+struct Node
+{
+    Barang data;
+    Node *next;
+};
+
 Barang daftar_barang[MAKS_DATA];
 int jumlah_data = 0;
 
-
 // Validasi kategori
-bool validKategori(const string& kategori) {
+bool validKategori(const string &kategori)
+{
     return kategori == "makanan" || kategori == "minuman";
 }
 
 // Validasi jumlah stok
-bool validJumlahStok(const string& input, int& jumlah) {
-    try {
+bool validJumlahStok(const string &input, int &jumlah)
+{
+    try
+    {
         size_t pos;
         int val = stoi(input, &pos);
-        if (pos != input.length() || val < 0) {
+        if (pos != input.length() || val < 0)
+        {
             return false;
         }
         jumlah = val;
         return true;
-    } catch (...) {
+    }
+    catch (...)
+    {
         return false;
     }
 }
 
 // Validasi tanggal kadaluarsa (format dd/mm/yyyy)
-bool validTanggal(const string& tanggal) {
+bool validTanggal(const string &tanggal)
+{
+
     regex pola(R"(^\d{2}/\d{2}/\d{4}$)");
-    return regex_match(tanggal, pola);
+    if (!regex_match(tanggal, pola))
+        return false;
+
+    int day = stoi(tanggal.substr(0, 2));
+    int month = stoi(tanggal.substr(3, 2));
+    int year = stoi(tanggal.substr(6, 4));
+
+    if (month < 1 || month > 12)
+        return false;
+
+    int daysInMonth[] = {31, 28, 31, 30, 31, 30,
+                         31, 31, 30, 31, 30, 31};
+
+    bool isLeap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+    if (isLeap && month == 2)
+        daysInMonth[1] = 29;
+
+    if (day < 1 || day > daysInMonth[month - 1])
+        return false;
+
+    if (year < 2025)
+        return false;
+
+    return true;
+}
+
+int findUserIndex(const json &data, const string &userId)
+{
+    for (int i = 0; i < data.size(); ++i)
+    {
+        if (data[i]["id"] == userId)
+        {
+            return i;
+        }
+    }
+    return -1; // Not found
 }
 
 // Fungsi input data barang
-void input() {
-    char selesai;
+void input(json &data, const string &userId)
+{
+    int selesai;
+    int userIndex = findUserIndex(data, userId);
+    if (userIndex == -1)
+    {
+        cout << "User tidak ditemukan!\n";
+        return;
+    }
 
-    do {
-        if (jumlah_data >= MAKS_DATA) {
-            cout << "Data sudah penuh, tidak bisa menambah lagi." << endl;
-            return;
-        }
-
+    do
+    {
         string kategori;
-        do {
+        do
+        {
             cout << "Masukkan kategori (makanan/minuman): ";
             getline(cin, kategori);
-            if (!validKategori(kategori)) {
+            if (!validKategori(kategori))
+            {
                 cout << "Kategori harus 'makanan' atau 'minuman'. Silakan coba lagi." << endl;
             }
         } while (!validKategori(kategori));
@@ -78,43 +131,71 @@ void input() {
 
         string input_jumlah;
         int jumlah_stok;
-        do {
+        do
+        {
             cout << "Masukkan jumlah stok (angka): ";
             getline(cin, input_jumlah);
-            if (!validJumlahStok(input_jumlah, jumlah_stok)) {
+            if (!validJumlahStok(input_jumlah, jumlah_stok))
+            {
                 cout << "Jumlah stok harus berupa angka positif. Silakan coba lagi." << endl;
             }
         } while (!validJumlahStok(input_jumlah, jumlah_stok));
 
         string tanggal_kadaluarsa;
-        do {
+        do
+        {
             cout << "Masukkan tanggal kadaluarsa (dd/mm/yyyy): ";
             getline(cin, tanggal_kadaluarsa);
-            if (!validTanggal(tanggal_kadaluarsa)) {
+            if (!validTanggal(tanggal_kadaluarsa))
+            {
                 cout << "Format tanggal salah. Gunakan format dd/mm/yyyy. Silakan coba lagi." << endl;
             }
         } while (!validTanggal(tanggal_kadaluarsa));
 
-        daftar_barang[jumlah_data].kategori = kategori;
-        daftar_barang[jumlah_data].nama_barang = nama_barang;
-        daftar_barang[jumlah_data].jumlah_stok = jumlah_stok;
-        daftar_barang[jumlah_data].tanggal_kadaluarsa = tanggal_kadaluarsa;
-        jumlah_data++;
+        json newItem = {
+            {"nama_barang", nama_barang},
+            {"jumlah_stok", jumlah_stok},
+            {"kategori", kategori},
+            {"tanggal_kadaluarsa", tanggal_kadaluarsa}};
 
-        cout << "Apakah sudah selesai input? (y/n): ";
+        data[userIndex]["fridgeContents"].push_back(newItem);
+
+        // Tulis kembali ke file
+        ofstream file("users.json");
+        if (file.is_open())
+        {
+            file << setw(4) << data;
+            file.close();
+            cout << "Item berhasil ditambahkan dan disimpan ke file.\n";
+        }
+        else
+        {
+            cerr << "Gagal menyimpan ke file.\n";
+        }
+
+        cout << "Konfirmasi Data Barang" << endl;
+        cout << "1. Sudah selesai" << endl;
+        cout << "2. Tambahkan barang lagi" << endl;
+        cout << "Apakah sudah selesai?: ";
         cin >> selesai;
         cin.ignore();
+        if (selesai != 1 && selesai != 2)
+        {
+            cout << "Pilihan tidak valid. Silakan pilih 1 atau 2." << endl;
+        }
 
-    } while (selesai == 'n' || selesai == 'N');
+    } while (selesai == 2);
 
-    cout << "\nKembali ke menu utama...\n" << endl;
+    cout << "\nKembali ke menu utama...\n"
+         << endl;
 }
 
-// fungsi untuk mengecek kadaluarsa 
-bool isExpired(const string& exp_date) {
+// fungsi untuk mengecek kadaluarsa
+bool isExpired(const string &exp_date)
+{
     // Dapatkan tanggal sekarang
     time_t now = time(nullptr);
-    tm* local_time = localtime(&now);
+    tm *local_time = localtime(&now);
     int current_day = local_time->tm_mday;
     int current_month = local_time->tm_mon + 1;
     int current_year = local_time->tm_year + 1900;
@@ -126,49 +207,87 @@ bool isExpired(const string& exp_date) {
     iss >> day >> sep >> month >> sep >> year;
 
     // Bandingkan tanggal
-    if (year < current_year) return true;
-    if (year > current_year) return false;
-    if (month < current_month) return true;
-    if (month > current_month) return false;
+    if (year < current_year)
+        return true;
+    if (year > current_year)
+        return false;
+    if (month < current_month)
+        return true;
+    if (month > current_month)
+        return false;
     return day < current_day;
 }
 
-// Fungsi tampilkan isi kulkas
-void display(json& data, string& Id) {
-    if (jumlah_data == 0) {
-        cout << "Kulkas kosong.\n";
-    } else {
-        cout << "======== ISI KULKAS ========\n";
-        cout << left << setw(5) << "ID" << setw(15) << "Kategori" 
-             << setw(20) << "Nama Barang" << setw(15) << "Jumlah Stok"
-             << setw(20) << "Tanggal Kadaluarsa" << "Status\n";
-        
-        // Dapatkan tanggal sekarang
-        time_t now = time(nullptr);
-        tm* local_time = localtime(&now);
-        printf("Tanggal terkini: %02d/%02d/%d\n", 
-               local_time->tm_mday, 
-               local_time->tm_mon + 1, 
-               local_time->tm_year + 1900);
-             
-        for (int i = 0; i < jumlah_data; i++) {
-            string status = isExpired(daftar_barang[i].tanggal_kadaluarsa) 
-                          ? "KADALUARSA" : "MASIH BAIK";
-            
-            cout << left << setw(5) << i + 1
-                 << setw(15) << daftar_barang[i].kategori
-                 << setw(20) << daftar_barang[i].nama_barang
-                 << setw(15) << daftar_barang[i].jumlah_stok
-                 << setw(20) << daftar_barang[i].tanggal_kadaluarsa
-                 << status << endl;
+void parseFridgeToList(const json &fridgeJson, Node *&head)
+{
+    head = nullptr;
+    Node *tail = nullptr;
+
+    for (const auto &item : fridgeJson)
+    {
+        Node *newNode = new Node;
+        newNode->data.nama_barang = item["nama_barang"].get<string>();
+        newNode->data.jumlah_stok = item["jumlah_stok"].get<int>();
+        newNode->data.kategori = item["kategori"].get<string>();
+        newNode->data.tanggal_kadaluarsa = item["tanggal_kadaluarsa"].get<string>();
+        newNode->next = nullptr;
+
+        if (!head)
+        {
+            head = newNode;
+            tail = head;
+        }
+        else
+        {
+            tail->next = newNode;
+            tail = newNode;
         }
     }
-    cout << "\nKembali ke menu utama...\n" << endl;
+}
+
+// Fungsi tampilkan isi kulkas
+void display(Node *head)
+{
+    if (!head)
+    {
+        cout << "Kulkas kosong.\n";
+        return;
+    }
+
+    cout << "======== ISI KULKAS ========\n";
+    cout << left << setw(5) << "ID" << setw(15) << "Kategori"
+         << setw(20) << "Nama Barang" << setw(15) << "Jumlah Stok"
+         << setw(20) << "Tanggal Kadaluarsa" << "Status\n";
+
+    int i = 1;
+    for (Node *curr = head; curr != nullptr; curr = curr->next)
+    {
+        string status = isExpired(curr->data.tanggal_kadaluarsa)
+                            ? "KADALUARSA"
+                            : "MASIH BAIK";
+
+        cout << left << setw(5) << i++
+             << setw(15) << curr->data.kategori
+             << setw(20) << curr->data.nama_barang
+             << setw(15) << curr->data.jumlah_stok
+             << setw(20) << curr->data.tanggal_kadaluarsa
+             << status << endl;
+    }
 }
 
 // Fungsi untuk mencari barang berdasarkan nama barang
-void hapusBarang() {
-    if (jumlah_data == 0) {
+void hapusBarang(json &data, const string &Id)
+{
+    int userIndex = findUserIndex(data, Id);
+    if (userIndex == -1)
+    {
+        cout << "User tidak ditemukan.\n";
+        return;
+    }
+
+    json &fridge = data[userIndex]["fridgeContents"];
+    if (fridge.empty())
+    {
         cout << "Tidak ada barang yang dapat dihapus.\n";
         return;
     }
@@ -177,134 +296,211 @@ void hapusBarang() {
     cout << "Masukkan kata kunci untuk mencari barang: ";
     getline(cin, keyword);
 
-    int found_count = 0;
-
-    // Tampilkan barang yang sesuai dengan kata kunci
+    vector<int> found_indices;
     cout << "Barang yang ditemukan:\n";
     cout << "ID\tKategori\tNama Barang\tJumlah Stok\tTanggal Kadaluarsa\n";
-    for (int i = 0; i < jumlah_data; i++) {
-        if (daftar_barang[i].nama_barang.find(keyword) != string::npos) {
-            cout << found_count + 1 << "\t"
-                 << daftar_barang[i].kategori << "\t\t"
-                 << daftar_barang[i].nama_barang << "\t\t"
-                 << daftar_barang[i].jumlah_stok << "\t\t"
-                 << daftar_barang[i].tanggal_kadaluarsa << endl;
-            found_count++;
+
+    for (int i = 0; i < fridge.size(); i++)
+    {
+        if (fridge[i]["nama_barang"].get<string>().find(keyword) != string::npos)
+        {
+            found_indices.push_back(i);
+            cout << found_indices.size() << "\t"
+                 << fridge[i]["kategori"] << "\t\t"
+                 << fridge[i]["nama_barang"] << "\t\t"
+                 << fridge[i]["jumlah_stok"] << "\t\t"
+                 << fridge[i]["tanggal_kadaluarsa"] << "\n";
         }
     }
 
-    if (found_count == 0) {
-        cout << "Tidak ada barang yang cocok dengan kata kunci '" << keyword << "'\n";
+    if (found_indices.empty())
+    {
+        cout << "Tidak ada barang yang cocok.\n";
         return;
     }
 
     int id;
-    cout << "Pilih ID barang yang ingin dihapus (1 - " << found_count << "): ";
+    cout << "Pilih ID barang yang ingin dihapus (1 - " << found_indices.size() << "): ";
     cin >> id;
-    cin.ignore();  // Membersihkan newline
+    cin.ignore();
 
-    if (id < 1 || id > found_count) {
+    if (id < 1 || id > found_indices.size())
+    {
         cout << "ID tidak valid.\n";
         return;
     }
 
-    // Barang yang dipilih untuk dihapus
-    int index_terhapus = -1;
-    found_count = 0;
-    for (int i = 0; i < jumlah_data; i++) {
-        if (daftar_barang[i].nama_barang.find(keyword) != string::npos) {
-            found_count++;
-            if (found_count == id) {
-                index_terhapus = i;
-                break;
-            }
-        }
-    }
+    int index_terhapus = found_indices[id - 1];
 
-    // Tampilkan konfirmasi penghapusan
     cout << "\nAnda akan menghapus barang berikut:\n";
-    cout << "Kategori: " << daftar_barang[index_terhapus].kategori << endl;
-    cout << "Nama Barang: " << daftar_barang[index_terhapus].nama_barang << endl;
-    cout << "Jumlah Stok: " << daftar_barang[index_terhapus].jumlah_stok << endl;
-    cout << "Tanggal Kadaluarsa: " << daftar_barang[index_terhapus].tanggal_kadaluarsa << endl;
+    cout << "Kategori: " << fridge[index_terhapus]["kategori"] << endl;
+    cout << "Nama Barang: " << fridge[index_terhapus]["nama_barang"] << endl;
+    cout << "Jumlah Stok: " << fridge[index_terhapus]["jumlah_stok"] << endl;
+    cout << "Tanggal Kadaluarsa: " << fridge[index_terhapus]["tanggal_kadaluarsa"] << endl;
 
     char konfirmasi;
     cout << "Apakah Anda yakin ingin menghapus barang ini? (y/n): ";
     cin >> konfirmasi;
     cin.ignore();
 
-    if (konfirmasi == 'y' || konfirmasi == 'Y') {
-        // Hapus barang dengan menimpa barang tersebut dengan barang terakhir
-        daftar_barang[index_terhapus] = daftar_barang[jumlah_data - 1];
-        jumlah_data--;  // Kurangi jumlah data
-        cout << "Barang berhasil dihapus.\n";
-    } else {
+    if (konfirmasi == 'y' || konfirmasi == 'Y')
+    {
+        fridge.erase(fridge.begin() + index_terhapus);
+
+        ofstream file("users.json");
+        if (file.is_open())
+        {
+            file << setw(4) << data << endl;
+            file.close();
+            cout << "Barang berhasil dihapus dan data disimpan ke file.\n";
+        }
+        else
+        {
+            cout << "Gagal menulis ke file JSON.\n";
+        }
+    }
+    else
+    {
         cout << "Barang tidak jadi dihapus.\n";
     }
 
-    cout << "\nKembali ke menu utama...\n" << endl;
+    cout << "\nKembali ke menu utama...\n"
+         << endl;
 }
 
-json loadData() {
+json loadData()
+{
     ifstream file("users.json");
-    
-    if (!file.is_open()) {
+
+    if (!file.is_open())
+    {
         cerr << "Error: Failed to open " << "users.json" << endl;
-        return {};  // Return empty JSON object
+        return {}; // Return empty JSON object
     }
 
-    try {
+    try
+    {
         return json::parse(file);
-    } 
-    catch (const json::parse_error& e) {
+    }
+    catch (const json::parse_error &e)
+    {
         cerr << "JSON parse error at byte " << e.byte << ": " << e.what() << endl;
     }
-    catch (const exception& e) {
+    catch (const exception &e)
+    {
         cerr << "Error: " << e.what() << endl;
     }
 
     return {};
 }
 
-void indexLogin(string& Id);
-// Program utama
-int main() {
-    json data = loadData();
-    if (data.empty()) {
-        cout << "No data loaded or file is empty" << endl;
+void clearFridgeList(Node *&head)
+{
+    while (head != nullptr)
+    {
+        Node *temp = head;
+        head = head->next;
+        delete temp;
+    }
+}
+
+void updateStok(json &data, const string &Id)
+{
+    int userIndex = findUserIndex(data, Id);
+    if (userIndex == -1)
+    {
+        cout << "User tidak ditemukan.\n";
+        return;
     }
 
-    int choices;
-    string Id;
-    while (Id.empty()){
-        indexLogin(Id);
+    json &fridge = data[userIndex]["fridgeContents"];
+    if (fridge.empty())
+    {
+        cout << "Kulkas kosong.\n";
+        return;
     }
-    while (true) {
-        cout<< Id << endl;
-        cout << "========== SMART FRIDGE ==========\n";
-        cout << "1. Display Fridge Contents\n";
-        cout << "2. Add Item to Fridge\n";
-        cout << "3. Remove Item from Fridge\n";
-        cout << "4. Exit\n";
-        cout << "Masukkan pilihan Anda: ";
-        cin >> choices;
-        cin.ignore(); // untuk membersihkan buffer newline
 
-        if (choices == 1) {
-            display(data,Id);
-        } else if (choices == 2) {
-            input();
-        } else if (choices == 3) {
-            hapusBarang();
-        } if (choices == 33) {
-            indexLogin(Id);
-        }else if (choices == 4) {
-            cout << "Terima kasih telah menggunakan Smart Fridge!\n";
-            break;  // Keluar dari loop dan program
-        } else {
-            cout << "Pilihan tidak valid. Silakan coba lagi.\n";
+    int kategoriPilihan;
+    do
+    {
+        cout << "\nPilih kategori barang yang ingin diupdate:\n";
+        cout << "1. Makanan\n";
+        cout << "2. Minuman\n";
+        cout << "3. Kembali\n";
+        cout << "Pilihan: ";
+        cin >> kategoriPilihan;
+        cin.ignore();
+
+        if (kategoriPilihan == 3)
+        {
+            cout << "Kembali ke menu utama...\n";
+            return;
         }
-    }
 
-    return 0;
+        string kategoriDipilih = (kategoriPilihan == 1) ? "makanan" : (kategoriPilihan == 2) ? "minuman"
+                                                                                             : "";
+
+        if (kategoriDipilih == "")
+        {
+            cout << "Pilihan tidak valid.\n";
+            continue;
+        }
+
+        // Filter dan tampilkan list barang sesuai kategori
+        vector<int> filtered_indices;
+        cout << "\nBarang dalam kategori '" << kategoriDipilih << "':\n";
+        cout << "ID\tNama Barang\tJumlah Stok\n";
+
+        for (int i = 0; i < fridge.size(); ++i)
+        {
+            if (fridge[i]["kategori"] == kategoriDipilih)
+            {
+                filtered_indices.push_back(i);
+                cout << filtered_indices.size() << "\t"
+                     << fridge[i]["nama_barang"] << "\t\t"
+                     << fridge[i]["jumlah_stok"] << endl;
+            }
+        }
+
+        if (filtered_indices.empty())
+        {
+            cout << "Tidak ada barang dalam kategori tersebut.\n";
+            return;
+        }
+
+        int pilihan;
+        cout << "Pilih ID barang yang ingin diupdate: ";
+        cin >> pilihan;
+        cin.ignore();
+
+        if (pilihan < 1 || pilihan > filtered_indices.size())
+        {
+            cout << "ID tidak valid.\n";
+            return;
+        }
+
+        int index_update = filtered_indices[pilihan - 1];
+        int stok_baru;
+        cout << "Masukkan stok baru: ";
+        cin >> stok_baru;
+        cin.ignore();
+
+        fridge[index_update]["jumlah_stok"] = stok_baru;
+
+        // Simpan ke file
+        ofstream file("users.json");
+        if (file.is_open())
+        {
+            file << setw(4) << data;
+            file.close();
+            cout << "Stok berhasil diperbarui dan disimpan ke file.\n";
+        }
+        else
+        {
+            cerr << "Gagal menyimpan ke file.\n";
+        }
+
+        break; // selesai update
+
+    } while (true);
 }

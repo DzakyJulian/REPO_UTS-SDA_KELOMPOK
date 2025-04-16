@@ -1,12 +1,119 @@
 [
-  {
-    "id" : "1",
-    "username": "miko",
-    "password": "miko123",
-    "fridgeContents": [
-      { "nama_barang": "Milk", "jumlah_stok": 2, "kategori": "minuman", "tanggal_kadaluarsa":"02/12/2025" },
-      { "nama_barang": "Cheese", "jumlah_stok": 1, "kategori": "makanan", "tanggal_kadaluarsa":"02/12/2025" }
-    ]
-  }
+    {
+        "fridgeContents": [
+            {
+                "jumlah_stok": 2,
+                "kategori": "minuman",
+                "nama_barang": "Milk",
+                "tanggal_kadaluarsa": "02/12/2025"
+            },
+            {
+                "jumlah_stok": 1,
+                "kategori": "makanan",
+                "nama_barang": "Cheese",
+                "tanggal_kadaluarsa": "02/01/2025"
+            },
+            {
+                "jumlah_stok": 2,
+                "kategori": "minuman",
+                "nama_barang": "extrajoss",
+                "tanggal_kadaluarsa": "02/12/2023"
+            },
+            {
+                "jumlah_stok": 5,
+                "kategori": "makanan",
+                "nama_barang": "Nabati",
+                "tanggal_kadaluarsa": "32/20/2021"
+            }
+        ],
+        "id": "1",
+        "password": "miko123",
+        "username": "miko"
+    },
+    {
+        "fridgeContents": [
+            {
+                "jumlah_stok": 8,
+                "kategori": "makanan",
+                "nama_barang": "sate",
+                "tanggal_kadaluarsa": "02/09/2025"
+            }
+        ],
+        "id": "user_1744820409",
+        "password": "12345678",
+        "username": "Mahesa"
+    },
+    {
+        "fridgeContents": [
+            {
+                "jumlah_stok": 2,
+                "kategori": "minuman",
+                "nama_barang": "Fanta",
+                "tanggal_kadaluarsa": "02/02/2024"
+            },
+            {
+                "jumlah_stok": 3,
+                "kategori": "makanan",
+                "nama_barang": "Taro",
+                "tanggal_kadaluarsa": "02/02/2022"
+            },
+            {
+                "jumlah_stok": 1,
+                "kategori": "minuman",
+                "nama_barang": "teh",
+                "tanggal_kadaluarsa": "23/02/2020"
+            },
+            {
+                "jumlah_stok": 4,
+                "kategori": "makanan",
+                "nama_barang": "kue salju",
+                "tanggal_kadaluarsa": "10/02/2021"
+            },
+            {
+                "jumlah_stok": 1,
+                "kategori": "minuman",
+                "nama_barang": "soda",
+                "tanggal_kadaluarsa": "02/02/2020"
+            },
+            {
+                "jumlah_stok": 4,
+                "kategori": "minuman",
+                "nama_barang": "air putih",
+                "tanggal_kadaluarsa": "02/02/2025"
+            },
+            {
+                "jumlah_stok": 9,
+                "kategori": "makanan",
+                "nama_barang": "taro",
+                "tanggal_kadaluarsa": "09/09/2025"
+            },
+            {
+                "jumlah_stok": 4,
+                "kategori": "makanan",
+                "nama_barang": "ciki",
+                "tanggal_kadaluarsa": "04/04/2025"
+            },
+            {
+                "jumlah_stok": 8,
+                "kategori": "minuman",
+                "nama_barang": "nutrisari",
+                "tanggal_kadaluarsa": "09/09/2026"
+            },
+            {
+                "jumlah_stok": 3,
+                "kategori": "minuman",
+                "nama_barang": "kopi",
+                "tanggal_kadaluarsa": "02/09/2026"
+            },
+            {
+                "jumlah_stok": 10,
+                "kategori": "makanan",
+                "nama_barang": "sate",
+                "tanggal_kadaluarsa": "06/04/2025"
+            }
+        ],
+        "id": "user_1744823471",
+        "password": "jakoyaja",
+        "username": "Jakoy"
+    }
 ]
-  
