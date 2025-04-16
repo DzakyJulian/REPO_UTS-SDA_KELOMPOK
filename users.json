@@ -1,11 +1,19 @@
 [
     {
-      "username": "miko",
-      "password": "miko123",
-      "fridgeContents": [
-        { "item": "Milk", "quantity": 2, "type": "minuman" },
-        { "item": "Cheese", "quantity": 1, "type": "makanan" }
-      ]
+        "fridgeContents": [
+            {
+                "expiry": "10/05/2025",
+                "item": "Susu",
+                "quantity": 2,
+                "type": "minuman"
+            }
+        ],
+        "password": "miko123",
+        "username": "miko"
+    },
+    {
+        "fridgeContents": [],
+        "password": "suisei123",
+        "username": "suisei"
     }
-  ]
-  
+]
