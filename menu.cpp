@@ -16,12 +16,12 @@ struct Barang {
 Barang daftar_barang[MAKS_DATA];
 int jumlah_data = 0;
 
-// Validasi kategori
+
 bool validKategori(const string& kategori) {
     return kategori == "makanan" || kategori == "minuman";
 }
 
-// Validasi jumlah stok
+
 bool validJumlahStok(const string& input, int& jumlah) {
     try {
         size_t pos;
@@ -36,13 +36,36 @@ bool validJumlahStok(const string& input, int& jumlah) {
     }
 }
 
-// Validasi tanggal kadaluarsa (format dd/mm/yyyy)
+
 bool validTanggal(const string& tanggal) {
+   
     regex pola(R"(^\d{2}/\d{2}/\d{4}$)");
-    return regex_match(tanggal, pola);
+    if (!regex_match(tanggal, pola)) return false;
+
+    
+    int day = stoi(tanggal.substr(0, 2));
+    int month = stoi(tanggal.substr(3, 2));
+    int year = stoi(tanggal.substr(6, 4));
+
+    
+    if (month < 1 || month > 12) return false;
+
+    
+    int daysInMonth[] = { 31, 28, 31, 30, 31, 30,
+                          31, 31, 30, 31, 30, 31 };
+
+    
+    bool isLeap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+    if (isLeap && month == 2) daysInMonth[1] = 29;
+
+    
+    if (day < 1 || day > daysInMonth[month - 1]) return false;
+
+    return true;
 }
 
-// Fungsi input data barang
+
+
 void input() {
     char selesai;
 
@@ -99,7 +122,7 @@ void input() {
     cout << "\nKembali ke menu utama...\n" << endl;
 }
 
-// Fungsi tampilkan isi kulkas
+
 void display() {
     cout << "======== ISI KULKAS ========\n";
     if (jumlah_data == 0) {
@@ -117,7 +140,7 @@ void display() {
     cout << "\nKembali ke menu utama...\n" << endl;
 }
 
-// Fungsi untuk mencari barang berdasarkan nama barang
+
 void hapusBarang() {
     if (jumlah_data == 0) {
         cout << "Tidak ada barang yang dapat dihapus.\n";
@@ -130,7 +153,7 @@ void hapusBarang() {
 
     int found_count = 0;
 
-    // Tampilkan barang yang sesuai dengan kata kunci
+  
     cout << "Barang yang ditemukan:\n";
     cout << "ID\tKategori\tNama Barang\tJumlah Stok\tTanggal Kadaluarsa\n";
     for (int i = 0; i < jumlah_data; i++) {
@@ -152,14 +175,14 @@ void hapusBarang() {
     int id;
     cout << "Pilih ID barang yang ingin dihapus (1 - " << found_count << "): ";
     cin >> id;
-    cin.ignore();  // Membersihkan newline
+    cin.ignore();  
 
     if (id < 1 || id > found_count) {
         cout << "ID tidak valid.\n";
         return;
     }
 
-    // Barang yang dipilih untuk dihapus
+    
     int index_terhapus = -1;
     found_count = 0;
     for (int i = 0; i < jumlah_data; i++) {
@@ -172,7 +195,7 @@ void hapusBarang() {
         }
     }
 
-    // Tampilkan konfirmasi penghapusan
+    
     cout << "\nAnda akan menghapus barang berikut:\n";
     cout << "Kategori: " << daftar_barang[index_terhapus].kategori << endl;
     cout << "Nama Barang: " << daftar_barang[index_terhapus].nama_barang << endl;
@@ -185,9 +208,8 @@ void hapusBarang() {
     cin.ignore();
 
     if (konfirmasi == 'y' || konfirmasi == 'Y') {
-        // Hapus barang dengan menimpa barang tersebut dengan barang terakhir
         daftar_barang[index_terhapus] = daftar_barang[jumlah_data - 1];
-        jumlah_data--;  // Kurangi jumlah data
+        jumlah_data--;  
         cout << "Barang berhasil dihapus.\n";
     } else {
         cout << "Barang tidak jadi dihapus.\n";
@@ -196,7 +218,7 @@ void hapusBarang() {
     cout << "\nKembali ke menu utama...\n" << endl;
 }
 
-// Program utama
+
 int main() {
     int choices;
 
@@ -208,7 +230,7 @@ int main() {
         cout << "4. Exit\n";
         cout << "Masukkan pilihan Anda: ";
         cin >> choices;
-        cin.ignore(); // untuk membersihkan buffer newline
+        cin.ignore(); 
 
         if (choices == 1) {
             display();
@@ -218,7 +240,7 @@ int main() {
             hapusBarang();
         } else if (choices == 4) {
             cout << "Terima kasih telah menggunakan Smart Fridge!\n";
-            break;  // Keluar dari loop dan program
+            break;  
         } else {
             cout << "Pilihan tidak valid. Silakan coba lagi.\n";
         }
