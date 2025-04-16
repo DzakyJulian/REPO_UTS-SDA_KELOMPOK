@@ -19,7 +19,7 @@ struct Barang {
 vector<Barang> daftar_barang;
 string currentUser;
 
-// Validasi
+
 bool validKategori(const string& kategori) {
     return kategori == "makanan" || kategori == "minuman";
 }
@@ -41,7 +41,7 @@ bool validTanggal(const string& tanggal) {
     return regex_match(tanggal, pola);
 }
 
-// Load & Save
+
 void loadFridgeFromJSON() {
     ifstream file("users.json");
     json users;
@@ -89,7 +89,7 @@ void saveFridgeToJSON() {
     out.close();
 }
 
-// Input data
+
 void input() {
     char selesai;
     do {
@@ -126,7 +126,7 @@ void input() {
     saveFridgeToJSON();
 }
 
-// Display
+
 void display() {
     cout << "\n======== ISI KULKAS ========\n";
     if (daftar_barang.empty()) {
@@ -143,7 +143,7 @@ void display() {
     }
 }
 
-// Hapus barang
+
 void hapusBarang() {
     if (daftar_barang.empty()) {
         cout << "Kulkas kosong.\n";
@@ -194,7 +194,7 @@ void hapusBarang() {
     }
 }
 
-// Login & Register
+
 bool login(const string& username, const string& password) {
     ifstream file("users.json");
     if (!file.is_open()) return false;
@@ -242,7 +242,7 @@ bool registerUser(const string& username, const string& password) {
     return true;
 }
 
-// Main
+
 int main() {
     cout << "===== SMART FRIDGE LOGIN =====\n";
     cout << "1. Login\n2. Register\nPilih: ";
@@ -269,7 +269,7 @@ int main() {
         return 0;
     }
 
-    // Menu utama
+
     while (true) {
         cout << "\n==== SMART FRIDGE MENU ====\n";
         cout << "1. Tampilkan isi kulkas\n";
