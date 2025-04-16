@@ -19,24 +19,30 @@ void cari()
     getline(cin, dicari);
 
     Barang* ptr = daftar_barang;
-    bool ditemukan = false;
+    int ditemukan = 0;
+
     cout << "\nHasil pencarian:\n";
+    cout << "ID\tKategori\tNama Barang\tJumlah Stok\tTanggal Kadaluarsa\n";
+    
     for (int i = 0; i < jumlah_data; i++)
     {
-        if ((ptr + i) -> nama_barang == dicari)
+        string nama_barang_lower = (ptr + i)->nama_barang;
+        transform(nama_barang_lower.begin(),nama_barang_lower.end(), nama_barang_lower.begin(), ::tolower);
+        
+        if (nama_barang_lower.find(dicari) != string::npos)
         {
-            cout << "\nBarang ditemukan:\n";
-            cout << "Nama Barang        : " << (ptr + i)->nama_barang << endl;
-            cout << "Kategori           : " << (ptr + i)->kategori << endl;
-            cout << "Jumlah Stok        : " << (ptr + i)->jumlah_stok << endl;
-            cout << "Tanggal Kadaluarsa : " << (ptr + i)->tanggal_kadaluarsa << endl;
-            ditemukan = true;
+            cout << ditemukan + 1 << "\t"
+                 << (ptr + i)->kategori << "\t\t"
+                 << (ptr + i)->nama_barang << "\t\t"
+                 << (ptr + i)->jumlah_stok << "\t\t"
+                 << (ptr + i)->tanggal_kadaluarsa<< endl;
+                 ditemukan++;
         }
     }
     
     if(!ditemukan)
     {
-        cout << "Barang dengan nama " << dicari << "tidak deitemukan.\n";
+        cout << "Barang dengan nama " << dicari << "tidak ditemukan.\n";
     }
     
 }
