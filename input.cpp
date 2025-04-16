@@ -38,16 +38,13 @@ bool validJumlahStok(const string& input, int& jumlah) {
     }
 }
 
-// Fungsi untuk format tanggal kadaluarsa dd/mm/yyyy
 bool validTanggal(const string& tanggal) {
     regex pola(R"(^\d{2}/\d{2}/\d{4}$)");
     if (!regex_match(tanggal, pola)) {
         return false;
     }
-    // Kodingan tambahan untuk range hari dan bulan bisa ditambahkan
     return true;
 }
-// Fungsi untuk input data dari user
 void input() {
     if (jumlah_data >= MAKS_DATA) {
         cout << "Data sudah penuh, tidak bisa menambah lagi." << endl;

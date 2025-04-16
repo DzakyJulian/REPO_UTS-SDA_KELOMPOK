@@ -6,7 +6,6 @@
 #include <sstream>
 #include <fstream>
 #include "json.hpp"
-// #include "login.cpp"
 
 using namespace std;
 using json = nlohmann::json;
@@ -62,13 +61,40 @@ bool validJumlahStok(const string &input, int &jumlah)
 // Validasi tanggal kadaluarsa (format dd/mm/yyyy)
 bool validTanggal(const string &tanggal)
 {
+
     regex pola(R"(^\d{2}/\d{2}/\d{4}$)");
-    return regex_match(tanggal, pola);
+    if (!regex_match(tanggal, pola))
+        return false;
+
+    int day = stoi(tanggal.substr(0, 2));
+    int month = stoi(tanggal.substr(3, 2));
+    int year = stoi(tanggal.substr(6, 4));
+
+    if (month < 1 || month > 12)
+        return false;
+
+    int daysInMonth[] = {31, 28, 31, 30, 31, 30,
+                         31, 31, 30, 31, 30, 31};
+
+    bool isLeap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+    if (isLeap && month == 2)
+        daysInMonth[1] = 29;
+
+    if (day < 1 || day > daysInMonth[month - 1])
+        return false;
+
+    if (year < 2025)
+        return false;
+
+    return true;
 }
 
-int findUserIndex(const json& data, const string& userId) {
-    for (int i = 0; i < data.size(); ++i) {
-        if (data[i]["id"] == userId) {
+int findUserIndex(const json &data, const string &userId)
+{
+    for (int i = 0; i < data.size(); ++i)
+    {
+        if (data[i]["id"] == userId)
+        {
             return i;
         }
     }
@@ -76,20 +102,25 @@ int findUserIndex(const json& data, const string& userId) {
 }
 
 // Fungsi input data barang
-void input(json& data, const string& userId) {
-    char selesai;
+void input(json &data, const string &userId)
+{
+    int selesai;
     int userIndex = findUserIndex(data, userId);
-    if (userIndex == -1) {
+    if (userIndex == -1)
+    {
         cout << "User tidak ditemukan!\n";
         return;
     }
 
-    do {
+    do
+    {
         string kategori;
-        do {
+        do
+        {
             cout << "Masukkan kategori (makanan/minuman): ";
             getline(cin, kategori);
-            if (!validKategori(kategori)) {
+            if (!validKategori(kategori))
+            {
                 cout << "Kategori harus 'makanan' atau 'minuman'. Silakan coba lagi." << endl;
             }
         } while (!validKategori(kategori));
@@ -100,19 +131,23 @@ void input(json& data, const string& userId) {
 
         string input_jumlah;
         int jumlah_stok;
-        do {
+        do
+        {
             cout << "Masukkan jumlah stok (angka): ";
             getline(cin, input_jumlah);
-            if (!validJumlahStok(input_jumlah, jumlah_stok)) {
+            if (!validJumlahStok(input_jumlah, jumlah_stok))
+            {
                 cout << "Jumlah stok harus berupa angka positif. Silakan coba lagi." << endl;
             }
         } while (!validJumlahStok(input_jumlah, jumlah_stok));
 
         string tanggal_kadaluarsa;
-        do {
+        do
+        {
             cout << "Masukkan tanggal kadaluarsa (dd/mm/yyyy): ";
             getline(cin, tanggal_kadaluarsa);
-            if (!validTanggal(tanggal_kadaluarsa)) {
+            if (!validTanggal(tanggal_kadaluarsa))
+            {
                 cout << "Format tanggal salah. Gunakan format dd/mm/yyyy. Silakan coba lagi." << endl;
             }
         } while (!validTanggal(tanggal_kadaluarsa));
@@ -121,28 +156,38 @@ void input(json& data, const string& userId) {
             {"nama_barang", nama_barang},
             {"jumlah_stok", jumlah_stok},
             {"kategori", kategori},
-            {"tanggal_kadaluarsa", tanggal_kadaluarsa}
-        };
+            {"tanggal_kadaluarsa", tanggal_kadaluarsa}};
 
         data[userIndex]["fridgeContents"].push_back(newItem);
 
         // Tulis kembali ke file
         ofstream file("users.json");
-        if (file.is_open()) {
+        if (file.is_open())
+        {
             file << setw(4) << data;
             file.close();
             cout << "Item berhasil ditambahkan dan disimpan ke file.\n";
-        } else {
+        }
+        else
+        {
             cerr << "Gagal menyimpan ke file.\n";
         }
 
-        cout << "Apakah sudah selesai input? (y/n): ";
+        cout << "Konfirmasi Data Barang" << endl;
+        cout << "1. Sudah selesai" << endl;
+        cout << "2. Tambahkan barang lagi" << endl;
+        cout << "Apakah sudah selesai?: ";
         cin >> selesai;
         cin.ignore();
+        if (selesai != 1 && selesai != 2)
+        {
+            cout << "Pilihan tidak valid. Silakan pilih 1 atau 2." << endl;
+        }
 
-    } while (selesai == 'n' || selesai == 'N');
+    } while (selesai == 2);
 
-    cout << "\nKembali ke menu utama...\n" << endl;
+    cout << "\nKembali ke menu utama...\n"
+         << endl;
 }
 
 // fungsi untuk mengecek kadaluarsa
@@ -349,29 +394,35 @@ json loadData()
     return {};
 }
 
-void clearFridgeList(Node*& head) {
-    while (head != nullptr) {
-        Node* temp = head;
+void clearFridgeList(Node *&head)
+{
+    while (head != nullptr)
+    {
+        Node *temp = head;
         head = head->next;
         delete temp;
     }
 }
 
-void updateStok(json &data, const string &Id) {
+void updateStok(json &data, const string &Id)
+{
     int userIndex = findUserIndex(data, Id);
-    if (userIndex == -1) {
+    if (userIndex == -1)
+    {
         cout << "User tidak ditemukan.\n";
         return;
     }
 
     json &fridge = data[userIndex]["fridgeContents"];
-    if (fridge.empty()) {
+    if (fridge.empty())
+    {
         cout << "Kulkas kosong.\n";
         return;
     }
 
     int kategoriPilihan;
-    do {
+    do
+    {
         cout << "\nPilih kategori barang yang ingin diupdate:\n";
         cout << "1. Makanan\n";
         cout << "2. Minuman\n";
@@ -380,15 +431,17 @@ void updateStok(json &data, const string &Id) {
         cin >> kategoriPilihan;
         cin.ignore();
 
-        if (kategoriPilihan == 3) {
+        if (kategoriPilihan == 3)
+        {
             cout << "Kembali ke menu utama...\n";
             return;
         }
 
-        string kategoriDipilih = (kategoriPilihan == 1) ? "makanan" :
-                                 (kategoriPilihan == 2) ? "minuman" : "";
+        string kategoriDipilih = (kategoriPilihan == 1) ? "makanan" : (kategoriPilihan == 2) ? "minuman"
+                                                                                             : "";
 
-        if (kategoriDipilih == "") {
+        if (kategoriDipilih == "")
+        {
             cout << "Pilihan tidak valid.\n";
             continue;
         }
@@ -398,8 +451,10 @@ void updateStok(json &data, const string &Id) {
         cout << "\nBarang dalam kategori '" << kategoriDipilih << "':\n";
         cout << "ID\tNama Barang\tJumlah Stok\n";
 
-        for (int i = 0; i < fridge.size(); ++i) {
-            if (fridge[i]["kategori"] == kategoriDipilih) {
+        for (int i = 0; i < fridge.size(); ++i)
+        {
+            if (fridge[i]["kategori"] == kategoriDipilih)
+            {
                 filtered_indices.push_back(i);
                 cout << filtered_indices.size() << "\t"
                      << fridge[i]["nama_barang"] << "\t\t"
@@ -407,7 +462,8 @@ void updateStok(json &data, const string &Id) {
             }
         }
 
-        if (filtered_indices.empty()) {
+        if (filtered_indices.empty())
+        {
             cout << "Tidak ada barang dalam kategori tersebut.\n";
             return;
         }
@@ -417,7 +473,8 @@ void updateStok(json &data, const string &Id) {
         cin >> pilihan;
         cin.ignore();
 
-        if (pilihan < 1 || pilihan > filtered_indices.size()) {
+        if (pilihan < 1 || pilihan > filtered_indices.size())
+        {
             cout << "ID tidak valid.\n";
             return;
         }
@@ -432,83 +489,18 @@ void updateStok(json &data, const string &Id) {
 
         // Simpan ke file
         ofstream file("users.json");
-        if (file.is_open()) {
+        if (file.is_open())
+        {
             file << setw(4) << data;
             file.close();
             cout << "Stok berhasil diperbarui dan disimpan ke file.\n";
-        } else {
+        }
+        else
+        {
             cerr << "Gagal menyimpan ke file.\n";
         }
 
         break; // selesai update
 
     } while (true);
-}
-
-void indexLogin(string &Id, json &fridgeContents);
-// Program utama
-int main() {
-    json fridgeContents;
-    string userId;
-
-    // Login dulu
-    indexLogin(userId, fridgeContents);
-
-    // Load data dari file
-    ifstream file("users.json");
-    json data;
-    if (file.is_open()) {
-        file >> data;
-        file.close();
-    } else {
-        cerr << "Gagal membuka file users.json.\n";
-        return 1;
-    }
-
-    // Tampilkan menu
-    int pilihan;
-    do {
-        cout << "\n=== MENU UTAMA ===\n";
-        cout << "1. Input Barang\n";
-        cout << "2. Tampilkan Isi Kulkas\n";
-        cout << "3. Hapus Barang\n";
-        cout << "4. Perbarui Stok Barang\n";
-        cout << "0. Keluar\n";
-        cout << "Pilih: ";
-        cin >> pilihan;
-        cin.ignore(); // flush newline
-
-        Node* head = nullptr;
-
-        switch (pilihan) {
-            case 1:
-                input(data, userId);
-                break;
-            case 2:
-                parseFridgeToList(data[findUserIndex(data, userId)]["fridgeContents"], head);
-                display(head);
-                break;
-            case 3:
-                hapusBarang(data, userId);
-                break;
-            case 4:
-                updateStok(data, userId);
-                break;
-            case 0:
-                cout << "Terima kasih. Keluar dari program.\n";
-                break;
-            default:
-                cout << "Pilihan tidak valid.\n";
-        }
-
-        // Hapus linked list jika dibuat
-        while (head != nullptr) {
-            Node* temp = head;
-            head = head->next;
-            delete temp;
-        }
-
-    } while (pilihan != 0);
-
-    return 0;
 }
