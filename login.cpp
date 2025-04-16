@@ -16,7 +16,7 @@ bool login(const string& username, const string& password, json& fridgeContents,
 
     json users;
     file >> users;
-
+ 
     for (const auto& user : users) {
         selectedId = user["id"];
         if (user["username"] == username && user["password"] == password) {
@@ -24,25 +24,24 @@ bool login(const string& username, const string& password, json& fridgeContents,
             return true;
         }
     }
-
+     selectedId.clear();
     return false;
 }
 
-void indexLogin(string& Id) {
+void indexLogin(string& Id, json& fridgeContents) {
     string username, password;
     cout << "Enter username: ";
     cin >> username;
     cout << "Enter password: ";
     cin >> password;
 
-    json fridgeContents;
     if (login(username, password, fridgeContents, Id)) {
         cout << "\nLogin success!\ndi dalam kulkas ada:\n";
 
-        for (const auto& item : fridgeContents) {
-            cout << "- " << item["nama_barang"] << " ("
-                 << item["jumlah_stok"] << ") [" << item["kategori"] << "]\n";
-        }
+        // for (const auto& item : fridgeContents) {
+        //     cout << "- " << item["nama_barang"] << " ("
+        //          << item["jumlah_stok"] << ") [" << item["kategori"] << "]\n";
+        // }
     } else {
         cout << "Login failed. password atau username salah.\n";
     }
