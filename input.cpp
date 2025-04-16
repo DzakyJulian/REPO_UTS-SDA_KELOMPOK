@@ -83,12 +83,15 @@ void input() {
         }
 
         // Konfirmasi apakah sudah selesai atau belum
-        std::cout << "Apakah sudah selesai? (y/n): ";
-        char selesai;
+        std::cout << "Konfirmasi Data Barang" << std::endl;
+        std::cout << "1. Iya" << std::endl;
+        std::cout << "2. Tidak" << std::endl;
+        std::cout << "Apakah sudah selesai?: ";
+        int selesai;
         cin >> selesai;
         cin.ignore();
 
-        if (selesai == 'y' || selesai == 'Y') {
+        if (selesai == 1){
             break;
         }
     }
@@ -111,3 +114,9 @@ void input() {
             fileJson.close();
             cout << "Data berhasil disimpan ke file users.json" << endl;
         }
+
+int main()
+{
+    input();
+    return 0;
+}
