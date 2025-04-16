@@ -1,11 +1,8 @@
-[
-    {
-      "username": "miko",
-      "password": "miko123",
-      "fridgeContents": [
-        { "item": "Milk", "quantity": 2, "type": "minuman" },
-        { "item": "Cheese", "quantity": 1, "type": "makanan" }
-      ]
+{
+    "barang_0": {
+        "jumlah_stok": 0,
+        "kategori": "",
+        "nama_barang": "",
+        "tanggal_kadaluarsa": ""
     }
-  ]
-  
+}
