@@ -72,7 +72,18 @@ void input() {
         barang[jumlah_data].tanggal_kadaluarsa = tanggal_kadaluarsa;
         jumlah_data++;
 
-        std::cout << "Apakah sudah selesai input? (y/n): ";
+        // Tampilkan data yang telah diisi
+        std::cout << "Data yang telah diisi:" << std::endl << std::endl;
+        for (int i = 0; i < jumlah_data; i++) {
+            std::cout << "Kategori: " << barang[i].kategori << std::endl;
+            std::cout << "Nama Barang: " << barang[i].nama_barang << std::endl;
+            std::cout << "Jumlah Stok: " << barang[i].jumlah_stok << std::endl;
+            std::cout << "Tanggal Kadaluarsa: " << barang[i].tanggal_kadaluarsa << std::endl;
+            std::cout << std::endl;
+        }
+
+        // Konfirmasi apakah sudah selesai atau belum
+        std::cout << "Apakah sudah selesai? (y/n): ";
         char selesai;
         cin >> selesai;
         cin.ignore();

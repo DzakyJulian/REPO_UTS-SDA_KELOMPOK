@@ -1,8 +1,14 @@
-{
-    "barang_0": {
+[
+    {
+        "jumlah_stok": 0,
+        "kategori": "",
+        "nama_barang": "",
+        "tanggal_kadaluarsa": ""
+    },
+    {
         "jumlah_stok": 0,
         "kategori": "",
         "nama_barang": "",
         "tanggal_kadaluarsa": ""
     }
-}
+]
