@@ -275,7 +275,7 @@ void display(Node *head)
     }
 }
 
-// Fungsi untuk mencari barang berdasarkan nama barang
+// Fungsi untuk menghapus barang dari kulkas
 void hapusBarang(json &data, const string &Id)
 {
     int userIndex = findUserIndex(data, Id);
@@ -503,4 +503,48 @@ void updateStok(json &data, const string &Id)
         break; // selesai update
 
     } while (true);
+}
+
+//fungsi mencari barang berdasarkan nama
+void cari(Node *head) 
+{
+    if (!head) {
+        cout << "Kulkas kosong, tidak ada barang untuk dicari.\n";
+        return;
+    }
+    string keyword;
+    cout << "Masukkan kata kunci untuk mencari barang: ";
+    getline(cin, keyword);
+
+    string lowerKeyword = keyword;
+    transform(lowerKeyword.begin(), lowerKeyword.end(), lowerKeyword.begin(), ::tolower);
+
+    cout << "======== HASIL PENCARIAN ========\n";
+    cout << left << setw(5) << "ID" << setw(15) << "Kategori"
+              << setw(20) << "Nama Barang" << setw(15) << "Jumlah Stok"
+              << setw(20) << "Tanggal Kadaluarsa" << "Status\n";
+
+    int i = 1;
+    bool found = false;
+    for (Node *curr = head; curr != nullptr; curr = curr->next) {
+        string lowerNamaBarang = curr->data.nama_barang;
+        transform(lowerNamaBarang.begin(), lowerNamaBarang.end(), lowerNamaBarang.begin(), ::tolower);
+        if (lowerNamaBarang.find(lowerKeyword) != std::string::npos) {
+            string status = isExpired(curr->data.tanggal_kadaluarsa)
+                                   ? "KADALUARSA"
+                                   : "MASIH BAIK";
+
+            cout << left << setw(5) << i++
+                 << setw(15) << curr->data.kategori
+                 << setw(20) << curr->data.nama_barang
+                 << setw(15) << curr->data.jumlah_stok
+                 << setw(20) << curr->data.tanggal_kadaluarsa
+                 << status << endl;
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "Tidak ada barang dengan kata kunci '" << keyword << "' ditemukan.\n";
+    }
 }

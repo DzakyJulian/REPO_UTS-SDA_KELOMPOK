@@ -47,8 +47,9 @@ int main() {
                 cout << "\n=== MENU KULKAS ===\n";
                 cout << "1. Input Barang\n";
                 cout << "2. Tampilkan Isi Kulkas\n";
-                cout << "3. Hapus Barang\n";
-                cout << "4. Update Stok Barang\n";
+                cout << "3. Cari Barang\n";
+                cout << "4. Hapus Barang\n";
+                cout << "5. Update Stok Barang\n";
                 cout << "0. Logout\n";
                 cout << "Pilih: ";
                 cin >> menuKulkas;
@@ -65,9 +66,13 @@ int main() {
                         display(head);
                         break;
                     case 3:
-                        hapusBarang(data, userId);
+                        parseFridgeToList(data[findUserIndex(data, userId)]["fridgeContents"], head);
+                        cari(head);
                         break;
                     case 4:
+                        hapusBarang(data, userId);
+                        break;
+                    case 5:
                         updateStok(data, userId);
                         break;
                     case 0:
