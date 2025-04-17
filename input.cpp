@@ -1,12 +1,12 @@
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <regex>
+#include <fstream>
+#include "json.hpp"
 
+using json = nlohmann::json;
 using namespace std;
 
 const int MAKS_DATA = 100;
-
 
 struct Barang {
     string kategori;       
@@ -24,91 +24,99 @@ bool validKategori(const string& kategori) {
 }
 
 // Fungsi untuk input jumlah stok (integer)
-bool validJumlahStok(const string& input, int& jumlah) {
-    try {
-        size_t pos;
-        int val = stoi(input, &pos);
-        if (pos != input.length() || val < 0) {
-            return false;
-        }
-        jumlah = val;
-        return true;
-    } catch (...) {
-        return false;
-    }
+int validJumlahStok(const string& input) {
+    return stoi(input);
 }
 
+// Fungsi untuk format tanggal kadaluarsa dd/mm/yyyy
 bool validTanggal(const string& tanggal) {
-    regex pola(R"(^\d{2}/\d{2}/\d{4}$)");
-    if (!regex_match(tanggal, pola)) {
-        return false;
-    }
-    return true;
+    return tanggal.length() == 10;
 }
-void input() {
-    if (jumlah_data >= MAKS_DATA) {
-        cout << "Data sudah penuh, tidak bisa menambah lagi." << endl;
-        return;
-    }
 
-    string kategori;
-    do {
-        cout << "Masukkan kategori (makanan/minuman): ";
+// Fungsi untuk input data dari user
+void input() {
+    Barang* barang = new Barang[100]; 
+    int jumlah_data = 0; 
+
+    while (true) {
+        string kategori;
+        string input_jumlah;
+        string nama_barang;
+        string tanggal_kadaluarsa;
+
+        std::cout << "Masukkan kategori (makanan/minuman): ";
         getline(cin, kategori);
         if (!validKategori(kategori)) {
-            cout << "Kategori harus 'makanan' atau 'minuman'. Silakan coba lagi." << endl;
+            std::cout << "Kategori harus 'makanan' atau 'minuman'. Silakan coba lagi." << std::endl;
+            continue;
         }
-    } while (!validKategori(kategori));
 
-    cout << "Masukkan nama barang: ";
-    string nama_barang;
-    getline(cin, nama_barang);
+        std::cout << "Masukkan nama barang: ";
+        getline(cin, nama_barang);
 
-    string input_jumlah;
-    int jumlah_stok;
-    do {
-        cout << "Masukkan jumlah stok (angka): ";
+        std::cout << "Masukkan jumlah stok (angka): ";
         getline(cin, input_jumlah);
-        if (!validJumlahStok(input_jumlah, jumlah_stok)) {
-            cout << "Jumlah stok harus berupa angka positif. Silakan coba lagi." << endl;
-        }
-    } while (!validJumlahStok(input_jumlah, jumlah_stok));
+        int jumlah_stok = validJumlahStok(input_jumlah);
 
-    string tanggal_kadaluarsa;
-    do {
-        cout << "Masukkan tanggal kadaluarsa (dd/mm/yyyy): ";
+        std::cout << "Masukkan tanggal kadaluarsa (dd/mm/yyyy): ";
         getline(cin, tanggal_kadaluarsa);
         if (!validTanggal(tanggal_kadaluarsa)) {
-            cout << "Format tanggal salah. Gunakan format dd/mm/yyyy. Silakan coba lagi." << endl;
+            std::cout << "Format tanggal salah. Gunakan format dd/mm/yyyy. Silakan coba lagi." << endl;
+            continue;
         }
-    } while (!validTanggal(tanggal_kadaluarsa));
 
-    // Simpan data ke array
-    daftar_barang[jumlah_data].kategori = kategori;
-    daftar_barang[jumlah_data].nama_barang = nama_barang;
-    daftar_barang[jumlah_data].jumlah_stok = jumlah_stok;
-    daftar_barang[jumlah_data].tanggal_kadaluarsa = tanggal_kadaluarsa;
-    jumlah_data++;
+        // Simpan data ke array dinamis
+        barang[jumlah_data].kategori = kategori;
+        barang[jumlah_data].nama_barang = nama_barang;
+        barang[jumlah_data].jumlah_stok = jumlah_stok;
+        barang[jumlah_data].tanggal_kadaluarsa = tanggal_kadaluarsa;
+        jumlah_data++;
 
-    // Simpan ke file JSON
-    // ofstream fileJson("users.json");
-    // if (!fileJson) {
-    //     cout << "Gagal membuka file untuk menyimpan data." << endl;
-    //     return;
-    // }
+        // Tampilkan data yang telah diisi
+        std::cout << "Data yang telah diisi:" << std::endl << std::endl;
+        for (int i = 0; i < jumlah_data; i++) {
+            std::cout << "Kategori: " << barang[i].kategori << std::endl;
+            std::cout << "Nama Barang: " << barang[i].nama_barang << std::endl;
+            std::cout << "Jumlah Stok: " << barang[i].jumlah_stok << std::endl;
+            std::cout << "Tanggal Kadaluarsa: " << barang[i].tanggal_kadaluarsa << std::endl;
+            std::cout << std::endl;
+        }
 
-    // fileJson << "[" << endl;
-    // for (int i = 0; i < jumlah_data; i++) {
-    //     fileJson << "  {" << endl;
-    //     fileJson << "    \"kategori\": \"" << daftar_barang[i].kategori << "\"," << endl;
-    //     fileJson << "    \"nama_barang\": \"" << daftar_barang[i].nama_barang << "\"," << endl;
-    //     fileJson << "    \"jumlah_stok\": " << daftar_barang[i].jumlah_stok << "," << endl;
-    //     fileJson << "    \"tanggal_kadaluarsa\": \"" << daftar_barang[i].tanggal_kadaluarsa << "\"" << endl;
-    //     fileJson << "  }" << (i < jumlah_data - 1 ? "," : "") << endl;
-    // }
-    // fileJson << "]" << endl;
+        // Konfirmasi apakah sudah selesai atau belum
+        std::cout << "Konfirmasi Data Barang" << std::endl;
+        std::cout << "1. Iya" << std::endl;
+        std::cout << "2. Tidak" << std::endl;
+        std::cout << "Apakah sudah selesai?: ";
+        int selesai;
+        cin >> selesai;
+        cin.ignore();
 
-    // fileJson.close();
+        if (selesai == 1){
+            break;
+        }
+    }
+        // Simpan data ke file JSON
+        json jsonData = json::array();
+        for (int i = 0; i < jumlah_data; i++) {
+                json dataBarang;
+                dataBarang["kategori"] = daftar_barang[i].kategori;
+                dataBarang["nama_barang"] = daftar_barang[i].nama_barang;
+                dataBarang["jumlah_stok"] = daftar_barang[i].jumlah_stok;
+                dataBarang["tanggal_kadaluarsa"] = daftar_barang[i].tanggal_kadaluarsa;
+                jsonData.push_back(dataBarang);
+            }
+            ofstream fileJson("users.json");
+            if (!fileJson) {
+                cout << "Gagal membuka file untuk menyimpan data." << endl;
+                return;
+            }
+            fileJson << jsonData.dump(4);
+            fileJson.close();
+            cout << "Data berhasil disimpan ke file users.json" << endl;
+        }
 
-    // cout << "Data berhasil disimpan ke file data.json" << endl;
+int main()
+{
+    input();
+    return 0;
 }
