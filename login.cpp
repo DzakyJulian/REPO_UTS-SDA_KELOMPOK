@@ -33,10 +33,21 @@ void indexLogin(string& Id, json& fridgeContents) {
     cout << "Enter username: ";
     cin >> username;
     cout << "Enter password: ";
-    cin >> password;
+    cin.ignore();  // Bersihkan newline dari buffer
+    char ch;
+    password = "";
+    while ((ch = cin.get()) != '\n') {
+        cout << '*';
+        password += ch;
+    }
 
     if (login(username, password, fridgeContents, Id)) {
         cout << "\nLogin success!\ndi dalam kulkas ada:\n";
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
 
         // for (const auto& item : fridgeContents) {
         //     cout << "- " << item["nama_barang"] << " ("
