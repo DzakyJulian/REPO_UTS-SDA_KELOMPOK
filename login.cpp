@@ -28,12 +28,12 @@ bool login(const string& username, const string& password, json& fridgeContents,
     return false;
 }
 
-void indexLogin(string& Id, json& fridgeContents) {
+bool indexLogin(string& Id, json& fridgeContents) {
     string username, password;
     cout << "Enter username: ";
     cin >> username;
     cout << "Enter password: ";
-    cin.ignore();  // Bersihkan newline dari buffer
+    cin.ignore();
     char ch;
     password = "";
     while ((ch = cin.get()) != '\n') {
@@ -41,21 +41,5 @@ void indexLogin(string& Id, json& fridgeContents) {
         password += ch;
     }
 
-    if (login(username, password, fridgeContents, Id)) {
-        cout << "\nLogin success!\ndi dalam kulkas ada:\n";
-        #ifdef _WIN32
-            system("cls");
-        #else
-            system("clear");
-        #endif
-
-        // for (const auto& item : fridgeContents) {
-        //     cout << "- " << item["nama_barang"] << " ("
-        //          << item["jumlah_stok"] << ") [" << item["kategori"] << "]\n";
-        // }
-    } else {
-        cout << "Login failed. password atau username salah.\n";
-    }
-
-    // return selectedId;
+    return login(username, password, fridgeContents, Id); // Langsung return hasil login
 }
