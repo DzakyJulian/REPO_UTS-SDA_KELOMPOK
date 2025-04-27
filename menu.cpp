@@ -423,7 +423,7 @@ void updateStok(json &data, const string &Id)
     int kategoriPilihan;
     do
     {
-        cout << "\nPilih kategori barang yang ingin diupdate:\n";
+        cout << "\nPilih kategori barang yang ingin diambil:\n";
         cout << "1. Makanan\n";
         cout << "2. Minuman\n";
         cout << "3. Kembali\n";
@@ -449,27 +449,30 @@ void updateStok(json &data, const string &Id)
         // Filter dan tampilkan list barang sesuai kategori
         vector<int> filtered_indices;
         cout << "\nBarang dalam kategori '" << kategoriDipilih << "':\n";
-        cout << "ID\tNama Barang\tJumlah Stok\n";
+        cout << "ID\tNama Barang\tJumlah Stok\tKadaluarsa\tStatus\n";
 
         for (int i = 0; i < fridge.size(); ++i)
         {
+            string tanggal_kadaluarsa = fridge[i]["tanggal_kadaluarsa"];
+            string status = isExpired(tanggal_kadaluarsa) ? "KADALUARSA" : "MASIH BAIK";
             if (fridge[i]["kategori"] == kategoriDipilih)
             {
                 filtered_indices.push_back(i);
                 cout << filtered_indices.size() << "\t"
                      << fridge[i]["nama_barang"] << "\t\t"
-                     << fridge[i]["jumlah_stok"] << endl;
+                     << fridge[i]["jumlah_stok"] << "\t"
+                     << tanggal_kadaluarsa << "\t" 
+                     << status << endl;
             }
         }
 
         if (filtered_indices.empty())
         {
             cout << "Tidak ada barang dalam kategori tersebut.\n";
-            return;
         }
 
         int pilihan;
-        cout << "Pilih ID barang yang ingin diupdate: ";
+        cout << "Pilih ID barang yang ingin diambil: ";
         cin >> pilihan;
         cin.ignore();
 
@@ -480,12 +483,18 @@ void updateStok(json &data, const string &Id)
         }
 
         int index_update = filtered_indices[pilihan - 1];
+        int current_stock = fridge[index_update]["jumlah_stok"];
         int stok_baru;
         cout << "Masukkan stok baru: ";
         cin >> stok_baru;
         cin.ignore();
+        if (stok_baru > current_stock)
+        {
+            cout << "Stok yang ingin dikurangi melebihi jumlah stok saat ini.\n";
+            return;
+        }
 
-        fridge[index_update]["jumlah_stok"] = stok_baru;
+        fridge[index_update]["jumlah_stok"] = current_stock - stok_baru;
 
         // Simpan ke file
         ofstream file("users.json");
