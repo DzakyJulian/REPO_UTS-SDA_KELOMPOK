@@ -27,19 +27,27 @@
             }
         ],
         "id": "1",
+        "kategori": null,
         "password": "miko123",
         "username": "miko"
     },
     {
         "fridgeContents": [
             {
-                "jumlah_stok": 8,
+                "jumlah_stok": 14342,
                 "kategori": "makanan",
                 "nama_barang": "sate",
-                "tanggal_kadaluarsa": "02/09/2025"
+                "tanggal_kadaluarsa": "02/02/2025"
+            },
+            {
+                "jumlah_stok": 8,
+                "kategori": "makanan",
+                "nama_barang": "cau",
+                "tanggal_kadaluarsa": "02/11/2025"
             }
         ],
         "id": "user_1744820409",
+        "kategori": null,
         "password": "12345678",
         "username": "Mahesa"
     },
@@ -113,6 +121,7 @@
             }
         ],
         "id": "user_1744823471",
+        "kategori": null,
         "password": "jakoyaja",
         "username": "Jakoy"
     },
@@ -138,20 +147,20 @@
             }
         ],
         "id": "user_1744851997",
+        "kategori": null,
         "password": "123",
         "username": "jakoy"
     },
     {
-        "fridgeContents": [
-            {
-                "jumlah_stok": 123,
-                "kategori": "makanan",
-                "nama_barang": "jak",
-                "tanggal_kadaluarsa": "25/04/2025"
-            }
-        ],
-        "id": "user_1744855800",
-        "password": "123",
-        "username": "jak"
+        "jumlah_stok": 6684620,
+        "kategori": "minuman",
+        "nama_barang": "Susu",
+        "tanggal_kadaluarsa": "20/12/2025"
+    },
+    {
+        "jumlah_stok": 3,
+        "kategori": "minuman",
+        "nama_barang": "Jus",
+        "tanggal_kadaluarsa": "12/12/2025"
     }
 ]

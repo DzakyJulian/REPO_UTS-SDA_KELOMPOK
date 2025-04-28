@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 #include "json.hpp"
 
 using json = nlohmann::json;
@@ -9,114 +11,181 @@ using namespace std;
 const int MAKS_DATA = 100;
 
 struct Barang {
-    string kategori;       
-    string nama_barang;   
-    int jumlah_stok;      
-    string tanggal_kadaluarsa; 
+    string kategori;
+    string nama_barang;
+    int jumlah_stok;
+    string tanggal_kadaluarsa;
 };
 
-Barang daftar_barang[MAKS_DATA];
-int jumlah_data = 0;
-
-// Fungsi untuk input kategori
+// Fungsi untuk validasi kategori
 bool validKategori(const string& kategori) {
     return kategori == "makanan" || kategori == "minuman";
 }
 
-// Fungsi untuk input jumlah stok (integer)
+// Fungsi untuk validasi input jumlah stok (harus integer positif)
 int validJumlahStok(const string& input) {
-    return stoi(input);
+    try {
+        int stok = stoi(input);
+        return stok > 0 ? stok : -1;
+    } catch (const exception&) {
+        return -1;
+    }
 }
 
-// Fungsi untuk format tanggal kadaluarsa dd/mm/yyyy
+// Fungsi untuk validasi format tanggal dd/mm/yyyy
 bool validTanggal(const string& tanggal) {
-    return tanggal.length() == 10;
+    if (tanggal.length() != 10) return false;
+    if (tanggal[2] != '/' || tanggal[5] != '/') return false;
+
+    int day, month, year;
+    try {
+        day = stoi(tanggal.substr(0, 2));
+        month = stoi(tanggal.substr(3, 2));
+        year = stoi(tanggal.substr(6, 4));
+    } catch (...) {
+        return false;
+    }
+
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 31) return false;
+    if (year < 1900 || year > 2100) return false;
+
+    // Validasi hari per bulan
+    if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30) return false;
+    if (month == 2) {
+        bool leap = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+        if (day > (leap ? 29 : 28)) return false;
+    }
+
+    return true;
 }
 
 // Fungsi untuk input data dari user
-void input() {
-    Barang* barang = new Barang[100]; 
-    int jumlah_data = 0; 
+void input(json& data, const string& userId) {
+    if (userId.empty()) {
+        cout << "Error: User ID tidak valid. Silakan login terlebih dahulu.\n";
+        return;
+    }
+
+    // Baca users.json
+    ifstream fileIn("users.json");
+    if (!fileIn.is_open()) {
+        cout << "Error: Tidak dapat membaca file users.json\n";
+        return;
+    }
+    fileIn >> data;
+    fileIn.close();
+
+    Barang barang[MAKS_DATA];
+    int jumlah_data = 0;
 
     while (true) {
-        string kategori;
-        string input_jumlah;
-        string nama_barang;
-        string tanggal_kadaluarsa;
+        cout << "\n=== TAMBAH BARANG KE KULKAS ===\n";
 
-        std::cout << "Masukkan kategori (makanan/minuman): ";
+        string kategori, nama_barang, tanggal_kadaluarsa, input_jumlah;
+        int jumlah_stok;
+
+        // Input kategori
+        cout << "Masukkan kategori (makanan/minuman): ";
         getline(cin, kategori);
         if (!validKategori(kategori)) {
-            std::cout << "Kategori harus 'makanan' atau 'minuman'. Silakan coba lagi." << std::endl;
+            cout << "Kategori harus 'makanan' atau 'minuman'.\n";
             continue;
         }
 
-        std::cout << "Masukkan nama barang: ";
+        // Input nama barang
+        cout << "Masukkan nama barang: ";
         getline(cin, nama_barang);
+        if (nama_barang.empty()) {
+            cout << "Nama barang tidak boleh kosong.\n";
+            continue;
+        }
 
-        std::cout << "Masukkan jumlah stok (angka): ";
+        // Input jumlah stok
+        cout << "Masukkan jumlah stok: ";
         getline(cin, input_jumlah);
-        int jumlah_stok = validJumlahStok(input_jumlah);
+        jumlah_stok = validJumlahStok(input_jumlah);
+        if (jumlah_stok == -1) {
+            cout << "Jumlah stok harus berupa angka positif.\n";
+            continue;
+        }
 
-        std::cout << "Masukkan tanggal kadaluarsa (dd/mm/yyyy): ";
+        // Input tanggal kadaluarsa
+        cout << "Masukkan tanggal kadaluarsa (dd/mm/yyyy): ";
         getline(cin, tanggal_kadaluarsa);
         if (!validTanggal(tanggal_kadaluarsa)) {
-            std::cout << "Format tanggal salah. Gunakan format dd/mm/yyyy. Silakan coba lagi." << endl;
+            cout << "Format tanggal tidak valid.\n";
             continue;
         }
 
-        // Simpan data ke array dinamis
-        barang[jumlah_data].kategori = kategori;
-        barang[jumlah_data].nama_barang = nama_barang;
-        barang[jumlah_data].jumlah_stok = jumlah_stok;
-        barang[jumlah_data].tanggal_kadaluarsa = tanggal_kadaluarsa;
-        jumlah_data++;
+        // Simpan ke array
+        barang[jumlah_data++] = {kategori, nama_barang, jumlah_stok, tanggal_kadaluarsa};
 
-        // Tampilkan data yang telah diisi
-        std::cout << "Data yang telah diisi:" << std::endl << std::endl;
+        // Tampilkan sementara
+        cout << "\nData sementara:\n";
         for (int i = 0; i < jumlah_data; i++) {
-            std::cout << "Kategori: " << barang[i].kategori << std::endl;
-            std::cout << "Nama Barang: " << barang[i].nama_barang << std::endl;
-            std::cout << "Jumlah Stok: " << barang[i].jumlah_stok << std::endl;
-            std::cout << "Tanggal Kadaluarsa: " << barang[i].tanggal_kadaluarsa << std::endl;
-            std::cout << std::endl;
+            cout << "- " << barang[i].nama_barang << " (" << barang[i].kategori
+                 << "), stok: " << barang[i].jumlah_stok
+                 << ", exp: " << barang[i].tanggal_kadaluarsa << endl;
         }
 
-        // Konfirmasi apakah sudah selesai atau belum
-        std::cout << "Konfirmasi Data Barang" << std::endl;
-        std::cout << "1. Iya" << std::endl;
-        std::cout << "2. Tidak" << std::endl;
-        std::cout << "Apakah sudah selesai?: ";
-        int selesai;
-        cin >> selesai;
-        cin.ignore();
+        cout << "\nTambah barang lagi?\n1. Iya\n2. Tidak\nPilihan: ";
+        string pilihan;
+        getline(cin, pilihan);
 
-        if (selesai == 1){
+        if (pilihan != "1") {
             break;
         }
     }
-        // Simpan data ke file JSON
-        json jsonData = json::array();
-        for (int i = 0; i < jumlah_data; i++) {
-                json dataBarang;
-                dataBarang["kategori"] = daftar_barang[i].kategori;
-                dataBarang["nama_barang"] = daftar_barang[i].nama_barang;
-                dataBarang["jumlah_stok"] = daftar_barang[i].jumlah_stok;
-                dataBarang["tanggal_kadaluarsa"] = daftar_barang[i].tanggal_kadaluarsa;
-                jsonData.push_back(dataBarang);
-            }
-            ofstream fileJson("users.json");
-            if (!fileJson) {
-                cout << "Gagal membuka file untuk menyimpan data." << endl;
-                return;
-            }
-            fileJson << jsonData.dump(4);
-            fileJson.close();
-            cout << "Data berhasil disimpan ke file users.json" << endl;
-        }
 
-int main()
-{
-    input();
-    return 0;
+    // Update ke user yang sesuai
+    bool userFound = false;
+
+    for (auto& user : data) {
+        if (user["id"] == userId) {
+            userFound = true;
+
+            if (!user.contains("fridgeContents") || !user["fridgeContents"].is_array()) {
+                user["fridgeContents"] = json::array();
+            }
+
+            for (int i = 0; i < jumlah_data; i++) {
+                bool itemFound = false;
+                for (auto& item : user["fridgeContents"]) {
+                    if (item["kategori"] == barang[i].kategori &&
+                        item["nama_barang"] == barang[i].nama_barang &&
+                        item["tanggal_kadaluarsa"] == barang[i].tanggal_kadaluarsa) {
+                        item["jumlah_stok"] = item["jumlah_stok"].get<int>() + barang[i].jumlah_stok;
+                        itemFound = true;
+                        break;
+                    }
+                }
+                if (!itemFound) {
+                    user["fridgeContents"].push_back({
+                        {"kategori", barang[i].kategori},
+                        {"nama_barang", barang[i].nama_barang},
+                        {"jumlah_stok", barang[i].jumlah_stok},
+                        {"tanggal_kadaluarsa", barang[i].tanggal_kadaluarsa}
+                    });
+                }
+            }
+            break;
+        }
+    }
+
+    if (!userFound) {
+        cout << "Error: User tidak ditemukan.\n";
+        return;
+    }
+
+    // Tulis ulang ke file
+    ofstream fileOut("users.json");
+    if (!fileOut.is_open()) {
+        cout << "Error: Tidak bisa membuka file untuk menulis.\n";
+        return;
+    }
+    fileOut << setw(4) << data << endl;
+    fileOut.close();
+
+    cout << "\n✅ Data berhasil disimpan ke users.json!\n";
 }
