@@ -1,91 +1,112 @@
-void hapusBarang(json &data, const string &Id)
-{
-    int userIndex = findUserIndex(data, Id);
-    if (userIndex == -1)
-    {
-        cout << "User tidak ditemukan.\n";
-        return;
-    }
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "json.hpp"
+#include "login.cpp"
+#include "menu.cpp"
+#include "register.cpp"
 
-    json &fridge = data[userIndex]["fridgeContents"];
-    if (fridge.empty())
-    {
-        cout << "Tidak ada barang yang dapat dihapus.\n";
-        return;
-    }
+using namespace std;
+using json = nlohmann::json;
 
-    string keyword;
-    cout << "Masukkan kata kunci untuk mencari barang: ";
-    getline(cin, keyword);
+int main() {
+    int pilihan;
+    json fridgeContents;
+    string userId;
 
-    vector<int> found_indices;
-    cout << "Barang yang ditemukan:\n";
-    cout << "ID\tKategori\tNama Barang\tJumlah Stok\tTanggal Kadaluarsa\n";
+    while (true) {
+        cout << "\n=== MENU UTAMA ===\n";
+        cout << "1. Login\n";
+        cout << "2. Register\n";
+        cout << "3. Keluar\n";
+        cout << "Pilih: ";
+        cin >> pilihan;
+        cin.ignore();  
 
-    for (int i = 0; i < fridge.size(); i++)
-    {
-        if (fridge[i]["nama_barang"].get<string>().find(keyword) != string::npos)
-        {
-            found_indices.push_back(i);
-            cout << found_indices.size() << "\t"
-                 << fridge[i]["kategori"] << "\t\t"
-                 << fridge[i]["nama_barang"] << "\t\t"
-                 << fridge[i]["jumlah_stok"] << "\t\t"
-                 << fridge[i]["tanggal_kadaluarsa"] << "\n";
+        if (pilihan == 1) {
+            indexLogin(userId, fridgeContents);
+
+            if (userId.empty()) {
+                continue; // Jika login gagal, kembali ke menu utama
+            }
+
+            // Load file JSON user
+            ifstream file("users.json");
+            json data;
+            if (file.is_open()) {
+                file >> data;
+                file.close();
+            } else {
+                cerr << "Gagal membuka file users.json.\n";
+                return 1;
+            }
+
+            int menuKulkas;
+            do {
+                cout << "\n=== MENU KULKAS ===\n";
+                cout << "1. Input Barang\n";
+                cout << "2. Tampilkan Isi Kulkas\n";
+                cout << "3. Cari Barang\n";
+                cout << "4. Hapus Barang\n";
+                cout << "5. Update Stok Barang\n";
+                cout << "0. Logout\n";
+                cout << "Pilih: ";
+                cin >> menuKulkas;
+                cin.ignore();
+
+                Node* head = nullptr;
+
+                switch (menuKulkas) {
+                    case 1:
+                        input(data, userId);
+                        break;
+                    case 2:
+                        parseFridgeToList(data[findUserIndex(data, userId)]["fridgeContents"], head);
+                        display(head);
+                        break;
+                    case 3:
+                        parseFridgeToList(data[findUserIndex(data, userId)]["fridgeContents"], head);
+                        cari(head);
+                        break;
+                    case 4:
+                        hapusBarang(data, userId);
+                        break;
+                    case 5:
+                        updateStok(data, userId);
+                        break;
+                    case 0:
+                        cout << "Logout berhasil.\n";
+                        break;
+                    default:
+                        cout << "Pilihan tidak valid.\n";
+                }
+
+                // Bebaskan memori linked list
+                while (head != nullptr) {
+                    Node* temp = head;
+                    head = head->next;
+                    delete temp;
+                }
+
+            } while (menuKulkas != 0);  // keluar dari menu kulkas (logout)
+
+        } else if (pilihan == 2) {
+            string username, password;
+            cout << "Masukkan username baru: ";
+            getline(cin, username);
+            cout << "Masukkan password: ";
+            getline(cin, password);
+
+            registerUser(username, password);
+
+        } else if (pilihan == 3) {
+            cout << "Keluar dari program.\n";
+            break;
+
+        } else {
+            cout << "Pilihan tidak valid. Silakan coba lagi.\n";
         }
     }
 
-    if (found_indices.empty())
-    {
-        cout << "Tidak ada barang yang cocok.\n";
-        return;
-    }
-
-    int id;
-    cout << "Pilih ID barang yang ingin dihapus (1 - " << found_indices.size() << "): ";
-    cin >> id;
-    cin.ignore();
-
-    if (id < 1 || id > found_indices.size())
-    {
-        cout << "ID tidak valid.\n";
-        return;
-    }
-
-    int index_terhapus = found_indices[id - 1];
-
-    cout << "\nAnda akan menghapus barang berikut:\n";
-    cout << "Kategori: " << fridge[index_terhapus]["kategori"] << endl;
-    cout << "Nama Barang: " << fridge[index_terhapus]["nama_barang"] << endl;
-    cout << "Jumlah Stok: " << fridge[index_terhapus]["jumlah_stok"] << endl;
-    cout << "Tanggal Kadaluarsa: " << fridge[index_terhapus]["tanggal_kadaluarsa"] << endl;
-
-    char konfirmasi;
-    cout << "Apakah Anda yakin ingin menghapus barang ini? (y/n): ";
-    cin >> konfirmasi;
-    cin.ignore();
-
-    if (konfirmasi == 'y' || konfirmasi == 'Y')
-    {
-        fridge.erase(fridge.begin() + index_terhapus);
-
-        ofstream file("users.json");
-        if (file.is_open())
-        {
-            file << setw(4) << data << endl;
-            file.close();
-            cout << "Barang berhasil dihapus dan data disimpan ke file.\n";
-        }
-        else
-        {
-            cout << "Gagal menulis ke file JSON.\n";
-        }
-    }
-    else
-    {
-        cout << "Barang tidak jadi dihapus.\n";
-    }
-
-    cout << "\nKembali ke menu utama...\n"
-         << endl;
+    return 0;
 }

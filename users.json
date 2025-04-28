@@ -140,5 +140,18 @@
         "id": "user_1744851997",
         "password": "123",
         "username": "jakoy"
+    },
+    {
+        "fridgeContents": [
+            {
+                "jumlah_stok": 123,
+                "kategori": "makanan",
+                "nama_barang": "jak",
+                "tanggal_kadaluarsa": "25/04/2025"
+            }
+        ],
+        "id": "user_1744855800",
+        "password": "123",
+        "username": "jak"
     }
 ]

@@ -21,7 +21,7 @@ int main() {
         cout << "3. Keluar\n";
         cout << "Pilih: ";
         cin >> pilihan;
-        cin.ignore();  // Membersihkan newline dari buffer
+        cin.ignore();  
 
         if (pilihan == 1) {
             indexLogin(userId, fridgeContents);
@@ -41,7 +41,6 @@ int main() {
                 return 1;
             }
 
-            // Menu setelah login
             int menuKulkas;
             do {
                 cout << "\n=== MENU KULKAS ===\n";
