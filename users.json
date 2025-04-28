@@ -33,10 +33,16 @@
     {
         "fridgeContents": [
             {
-                "jumlah_stok": 8,
+                "jumlah_stok": 4,
                 "kategori": "makanan",
                 "nama_barang": "sate",
                 "tanggal_kadaluarsa": "02/09/2025"
+            },
+            {
+                "jumlah_stok": 2,
+                "kategori": "makanan",
+                "nama_barang": "nasi",
+                "tanggal_kadaluarsa": "02/05/2025"
             }
         ],
         "id": "user_1744820409",
