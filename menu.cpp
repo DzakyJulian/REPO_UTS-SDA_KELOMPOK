@@ -104,74 +104,86 @@ int findUserIndex(const json &data, const string &userId)
 // Fungsi input data barang
 void input(json &data, const string &userId)
 {
+    system("cls");
+    string kategori;
+    string nama_barang;
+    string input_jumlah;
+    string tanggal_kadaluarsa;
     int selesai;
     int userIndex = findUserIndex(data, userId);
     if (userIndex == -1)
     {
-        cout << "User tidak ditemukan!\n";
+        std::cout << "User tidak ditemukan!\n";
         return;
     }
 
     do
     {
-        string kategori;
         do
         {
-            cout << "Masukkan kategori (makanan/minuman): ";
-            getline(cin, kategori);
+            std::cout << "Masukkan kategori (makanan/minuman): ";
+            std::getline(std::cin, kategori);
             if (!validKategori(kategori))
             {
-                cout << "Kategori harus 'makanan' atau 'minuman'. Silakan coba lagi." << endl;
+                std::cout << "Kategori harus 'makanan' atau 'minuman'. Silakan coba lagi." << endl;
             }
         } while (!validKategori(kategori));
 
-        cout << "Masukkan nama barang: ";
-        string nama_barang;
-        getline(cin, nama_barang);
+        std::cout << "Masukkan nama barang: ";
+        getline(std::cin, nama_barang);
 
-        string input_jumlah;
         int jumlah_stok;
         do
         {
-            cout << "Masukkan jumlah stok (angka): ";
-            getline(cin, input_jumlah);
+            std::cout << "Masukkan jumlah stok (angka): ";
+            getline(std::cin, input_jumlah);
             if (!validJumlahStok(input_jumlah, jumlah_stok))
             {
-                cout << "Jumlah stok harus berupa angka positif. Silakan coba lagi." << endl;
+                std::cout << "Jumlah stok harus berupa angka positif. Silakan coba lagi." << endl;
             }
         } while (!validJumlahStok(input_jumlah, jumlah_stok));
 
-        string tanggal_kadaluarsa;
         do
         {
-            cout << "Masukkan tanggal kadaluarsa (dd/mm/yyyy): ";
-            getline(cin, tanggal_kadaluarsa);
+            std::cout << "Masukkan tanggal kadaluarsa (dd/mm/yyyy): ";
+            getline(std::cin, tanggal_kadaluarsa);
             if (!validTanggal(tanggal_kadaluarsa))
             {
-                cout << "Format tanggal salah. Gunakan format dd/mm/yyyy. Silakan coba lagi." << endl;
+                std::cout << "Format tanggal salah. Gunakan format dd/mm/yyyy. Silakan coba lagi." << endl;
             }
         } while (!validTanggal(tanggal_kadaluarsa));
 
-        json newItem = {
-            {"nama_barang", nama_barang},
-            {"jumlah_stok", jumlah_stok},
-            {"kategori", kategori},
-            {"tanggal_kadaluarsa", tanggal_kadaluarsa}};
-
-        data[userIndex]["fridgeContents"].push_back(newItem);
-
-        // Tulis kembali ke file
-        ofstream file("users.json");
-        if (file.is_open())
-        {
-            file << setw(4) << data;
-            file.close();
-            cout << "Item berhasil ditambahkan dan disimpan ke file.\n";
+        json data;
+        // Muat data dari file JSON
+        ifstream file("users.json");
+        file >> data;
+    
+        // Cari apakah data yang sama sudah ada di JSON
+        bool found = false;
+        for (auto &item : data) {
+            if (item["kategori"] == kategori &&
+                item["nama_barang"] == nama_barang &&
+                item["tanggal_kadaluarsa"] == tanggal_kadaluarsa) {
+                // Jika data yang sama sudah ada, tambahkan stoknya
+                item["jumlah_stok"] = item["jumlah_stok"].get<int>() + jumlah_stok;
+                found = true;
+                break;
+            }
         }
-        else
-        {
-            cerr << "Gagal menyimpan ke file.\n";
+    
+        if (!found) {
+            // Simpan data baru ke JSON
+            json newItem;
+            newItem["kategori"] = kategori;
+            newItem["nama_barang"] = nama_barang;
+            newItem["jumlah_stok"] = jumlah_stok;
+            newItem["tanggal_kadaluarsa"] = tanggal_kadaluarsa;
+            data.push_back(newItem);
         }
+    
+        // Simpan data ke file JSON
+        ofstream fileOut("users.json");
+        fileOut << std::setw(4) << data << std::endl;
 
         cout << "Konfirmasi Data Barang" << endl;
         cout << "1. Sudah selesai" << endl;

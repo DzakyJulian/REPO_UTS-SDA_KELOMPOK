@@ -33,17 +33,42 @@ bool validTanggal(const string& tanggal) {
     return tanggal.length() == 10;
 }
 
+void saveToJSON(json &data, const string &kategori, const string &nama_barang, int jumlah_stok, const string &tanggal_kadaluarsa) {
+    // Cari apakah data yang sama sudah ada di JSON
+    bool found = false;
+    for (auto &item : data) {
+        if (item["kategori"] == kategori &&
+            item["nama_barang"] == nama_barang &&
+            item["tanggal_kadaluarsa"] == tanggal_kadaluarsa) {
+            // Jika data yang sama sudah ada, perbarui jumlah stoknya
+            item["jumlah_stok"] = item["jumlah_stok"].get<int>() + jumlah_stok;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        // Simpan data baru ke JSON
+        json newItem;
+        newItem["kategori"] = kategori;
+        newItem["nama_barang"] = nama_barang;
+        newItem["jumlah_stok"] = jumlah_stok;
+        newItem["tanggal_kadaluarsa"] = tanggal_kadaluarsa;
+        data.push_back(newItem);
+    }
+}
+
 // Fungsi untuk input data dari user
 void input() {
     Barang* barang = new Barang[100]; 
     int jumlah_data = 0; 
+    string kategori;
+    string input_jumlah;
+    string nama_barang;
+    string tanggal_kadaluarsa;
+    int jumlah_stok;
 
-    while (true) {
-        string kategori;
-        string input_jumlah;
-        string nama_barang;
-        string tanggal_kadaluarsa;
-
+    while (true) {    
         std::cout << "Masukkan kategori (makanan/minuman): ";
         getline(cin, kategori);
         if (!validKategori(kategori)) {
@@ -95,25 +120,23 @@ void input() {
             break;
         }
     }
-        // Simpan data ke file JSON
-        json jsonData = json::array();
-        for (int i = 0; i < jumlah_data; i++) {
-                json dataBarang;
-                dataBarang["kategori"] = daftar_barang[i].kategori;
-                dataBarang["nama_barang"] = daftar_barang[i].nama_barang;
-                dataBarang["jumlah_stok"] = daftar_barang[i].jumlah_stok;
-                dataBarang["tanggal_kadaluarsa"] = daftar_barang[i].tanggal_kadaluarsa;
-                jsonData.push_back(dataBarang);
-            }
-            ofstream fileJson("users.json");
-            if (!fileJson) {
-                cout << "Gagal membuka file untuk menyimpan data." << endl;
-                return;
-            }
-            fileJson << jsonData.dump(4);
-            fileJson.close();
-            cout << "Data berhasil disimpan ke file users.json" << endl;
-        }
+    json data;
+
+    // Coba baca file JSON
+    ifstream file("users.json");
+    if (file.is_open()) {
+        // Jika file tidak kosong, baca dan parse isi file
+        file >> data;
+        file.close();
+    } else {
+        // Jika file kosong, buat data JSON kosong
+        data = json::array();
+    }
+
+    // Simpan data ke file JSON dengan menggunakan dump()
+    ofstream fileOut("users.json");
+    fileOut << std::setw(4) << data << std::endl;
+}
 
 int main()
 {
