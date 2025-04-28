@@ -63,7 +63,7 @@ int main() {
                     cout << "2. Tampilkan Isi Kulkas\n";
                     cout << "3. Cari Barang\n";
                     cout << "4. Hapus Barang\n";
-                    cout << "5. Update Stok Barang\n";
+                    cout << "5. Update / Ambil Stok Barang\n";
                     cout << "6. Filter Barang Kadaluarsa\n";  // New option
                     cout << "0. Logout\n";
                     cout << "Pilih: ";

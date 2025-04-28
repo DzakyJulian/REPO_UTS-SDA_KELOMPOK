@@ -286,7 +286,7 @@ void display(Node *head) {
         cout << "Kulkas kosong.\n";
         return;
     }
-
+ 
     cout << "======== ISI KULKAS ========\n";
     cout << left << setw(5) << "ID" << setw(15) << "Kategori"
          << setw(20) << "Nama Barang" << setw(15) << "Jumlah Stok"
@@ -441,22 +441,26 @@ void clearFridgeList(Node *&head) {
     }
 }
 
-void updateStok(json &data, const string &Id) {
+void updateStok(json &data, const string &Id)
+{
     int userIndex = findUserIndex(data, Id);
-    if (userIndex == -1) {
+    if (userIndex == -1)
+    {
         cout << "User tidak ditemukan.\n";
         return;
     }
 
     json &fridge = data[userIndex]["fridgeContents"];
-    if (fridge.empty()) {
+    if (fridge.empty())
+    {
         cout << "Kulkas kosong.\n";
         return;
     }
 
     int kategoriPilihan;
-    do {
-        cout << "\nPilih kategori barang yang ingin diupdate:\n";
+    do
+    {
+        cout << "\nPilih kategori barang yang ingin diambil:\n";
         cout << "1. Makanan\n";
         cout << "2. Minuman\n";
         cout << "3. Kembali\n";
@@ -464,66 +468,93 @@ void updateStok(json &data, const string &Id) {
         cin >> kategoriPilihan;
         cin.ignore();
 
-        if (kategoriPilihan == 3) {
+        if (kategoriPilihan == 3)
+        {
             cout << "Kembali ke menu utama...\n";
             return;
         }
 
-        string kategoriDipilih = (kategoriPilihan == 1) ? "makanan" : (kategoriPilihan == 2) ? "minuman" : "";
+        string kategoriDipilih = (kategoriPilihan == 1) ? "makanan" : (kategoriPilihan == 2) ? "minuman"
+                                                                                             : "";
 
-        if (kategoriDipilih.empty()) {
+        if (kategoriDipilih == "")
+        {
             cout << "Pilihan tidak valid.\n";
             continue;
         }
 
-        // Filter dan tampilkan list barang sesuai kategori
+        // Filter dan tampilkan list barang sesuai kategori dan status MASIH BAIK
         vector<int> filtered_indices;
-        cout << "\nBarang dalam kategori '" << kategoriDipilih << "':\n";
-        cout << "ID\tNama Barang\tJumlah Stok\n";
+        cout << "\nBarang dalam kategori '" << kategoriDipilih << "' dengan status MASIH BAIK:\n";
+        cout << left << setw(5) << "ID"
+         << setw(20) << "Nama Barang" << setw(15) << "Jumlah Stok"
+         << setw(20) << "Tanggal Kadaluarsa" << "Status\n";
 
-        for (int i = 0; i < fridge.size(); ++i) {
-            try {
-                if (fridge[i]["kategori"] == kategoriDipilih) {
-                    filtered_indices.push_back(i);
-                    cout << filtered_indices.size() << "\t"
-                         << fridge[i]["nama_barang"] << "\t\t"
-                         << fridge[i]["jumlah_stok"] << endl;
-                }
-            } catch (const json::exception& e) {
-                cerr << "Error accessing fridge item: " << e.what() << endl;
+        for (int i = 0; i < fridge.size(); ++i)
+        {
+            string tanggal_kadaluarsa = fridge[i]["tanggal_kadaluarsa"];
+            string status = isExpired(tanggal_kadaluarsa) ? "KADALUARSA" : "MASIH BAIK";
+            
+            // Hanya tampilkan jika kategori sesuai dan status MASIH BAIK
+            if (fridge[i]["kategori"] == kategoriDipilih && status == "MASIH BAIK")
+            {
+                filtered_indices.push_back(i);
+                cout << left << setw(5) << filtered_indices.size()
+                     << setw(20) << fridge[i]["nama_barang"].get<string>()
+                     << setw(15) << fridge[i]["jumlah_stok"].get<int>() 
+                     << setw(20) << tanggal_kadaluarsa
+                     << status << endl;
             }
         }
 
-        if (filtered_indices.empty()) {
-            cout << "Tidak ada barang dalam kategori tersebut.\n";
-            return;
+        if (filtered_indices.empty())
+        {
+            cout << "Tidak ada barang dalam kategori tersebut dengan status MASIH BAIK.\n";
+            continue;  // Kembali ke menu pilihan kategori
         }
 
         int pilihan;
-        cout << "Pilih ID barang yang ingin diupdate: ";
+        cout << "Pilih ID barang yang ingin diambil: ";
         cin >> pilihan;
         cin.ignore();
 
-        if (pilihan < 1 || pilihan > filtered_indices.size()) {
+        if (pilihan < 1 || pilihan > filtered_indices.size())
+        {
             cout << "ID tidak valid.\n";
-            return;
+            continue;  // Kembali ke menu pilihan kategori
         }
 
         int index_update = filtered_indices[pilihan - 1];
+        int current_stock = fridge[index_update]["jumlah_stok"];
         int stok_baru;
-        cout << "Masukkan stok baru: ";
+        cout << "Masukkan jumlah stok yang ingin diambil: ";
         cin >> stok_baru;
         cin.ignore();
+        
+        if (stok_baru <= 0)
+        {
+            cout << "Jumlah stok harus lebih dari 0.\n";
+            continue;
+        }
+        
+        if (stok_baru > current_stock)
+        {
+            cout << "Stok yang ingin dikurangi melebihi jumlah stok saat ini.\n";
+            continue;
+        }
 
-        fridge[index_update]["jumlah_stok"] = stok_baru;
+        fridge[index_update]["jumlah_stok"] = current_stock - stok_baru;
 
         // Simpan ke file
         ofstream file("users.json");
-        if (file.is_open()) {
+        if (file.is_open())
+        {
             file << setw(4) << data;
             file.close();
             cout << "Stok berhasil diperbarui dan disimpan ke file.\n";
-        } else {
+        }
+        else
+        {
             cerr << "Gagal menyimpan ke file.\n";
         }
 

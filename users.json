@@ -38,6 +38,12 @@
                 "kategori": "makanan",
                 "nama_barang": "sate",
                 "tanggal_kadaluarsa": "02/02/2025"
+            },
+            {
+                "jumlah_stok": 8,
+                "kategori": "makanan",
+                "nama_barang": "cau",
+                "tanggal_kadaluarsa": "02/11/2025"
             }
         ],
         "id": "user_1744820409",
