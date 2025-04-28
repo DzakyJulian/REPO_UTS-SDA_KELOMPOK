@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <fstream>
 #include <vector>
@@ -40,35 +41,68 @@ void filterExpiredItems(json& data, const string& userId) {
         }
     }
     
-    if (userIndex == -1) return;
+    if (userIndex == -1) {
+        cout << "User tidak ditemukan.\n";
+        return;
+    }
     
     json& fridgeContents = data[userIndex]["fridgeContents"];
     vector<size_t> expiredIndices;
     
-    // Find expired items
-    cout << "\n=== BARANG KADALUARSA ===\n";
+    // Display header
+    cout << "\n======== BARANG KADALUARSA ========\n";
+    
+    // Check if fridge is empty
+    if (fridgeContents.empty()) {
+        cout << "Kulkas kosong.\n";
+        cout << string(95, '=') << "\n";
+        return;
+    }
+    
+    cout << left << setw(5) << "ID" 
+         << setw(15) << "Kategori" 
+         << setw(20) << "Nama Barang" 
+         << setw(15) << "Jumlah Stok" 
+         << setw(20) << "Tanggal Kadaluarsa" 
+         << "Status\n";
+    cout << string(95, '=') << "\n";
+    
+    // Find and display expired items
     bool foundExpired = false;
+    int displayId = 1;
     
     for (size_t i = 0; i < fridgeContents.size(); ++i) {
-        if (isExpiredStatus(fridgeContents[i]["tanggal_kadaluarsa"])) {
-            cout << "- " << fridgeContents[i]["nama_barang"] 
-                 << " (Exp: " << fridgeContents[i]["tanggal_kadaluarsa"] << ")\n";
+        string expiryDate = fridgeContents[i]["tanggal_kadaluarsa"];
+        bool isExpired = isExpiredStatus(expiryDate);
+        
+        if (isExpired) {
             expiredIndices.push_back(i);
             foundExpired = true;
+            
+            cout << left << setw(5) << displayId++
+                 << setw(15) << fridgeContents[i]["kategori"].get<string>()
+                 << setw(20) << fridgeContents[i]["nama_barang"].get<string>()
+                 << setw(15) << fridgeContents[i]["jumlah_stok"].get<int>()
+                 << setw(20) << expiryDate
+                 << "KADALUARSA" << endl;
         }
     }
     
     if (!foundExpired) {
         cout << "Tidak ada barang yang kadaluarsa.\n";
+        cout << string(95, '=') << "\n";
         return;
     }
     
+    cout << string(95, '=') << "\n";
+    
     // Ask for confirmation to remove
-    cout << "\nApakah Anda ingin membuang barang yang kadaluarsa? (Enter untuk lanjut, 'n' untuk batal): ";
+    cout << "\nApakah Anda ingin membuang " << expiredIndices.size() 
+         << " barang yang kadaluarsa? (y/n): ";
     string input;
     getline(cin, input);
     
-    if (input == "n" || input == "N") {
+    if (input != "y" && input != "Y") {
         cout << "Penghapusan dibatalkan.\n";
         return;
     }
@@ -83,7 +117,7 @@ void filterExpiredItems(json& data, const string& userId) {
     if (file.is_open()) {
         file << data.dump(4);
         file.close();
-        cout << "Barang kadaluarsa telah dihapus.\n";
+        cout << expiredIndices.size() << " barang kadaluarsa telah dihapus.\n";
     } else {
         cerr << "Gagal menyimpan perubahan.\n";
     }
