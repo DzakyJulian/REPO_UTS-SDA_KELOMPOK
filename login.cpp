@@ -3,9 +3,59 @@
 #include <string>
 #include "json.hpp"
 
+#ifdef _WIN32
+#include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
 
 using json = nlohmann::json;
 using namespace std;
+
+// Fungsi untuk membaca password dengan tampilan bintang (cross-platform)
+string getHiddenPassword(const char* prompt) {
+    cout << prompt;
+    string password;
+
+#ifdef _WIN32
+    char ch;
+    while ((ch = _getch()) != '\r') {
+        if (ch == '\b') {
+            if (!password.empty()) {
+                cout << "\b \b";
+                password.pop_back();
+            }
+        } else {
+            password.push_back(ch);
+            cout << '*';
+        }
+    }
+#else
+    termios oldt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    termios newt = oldt;
+    newt.c_lflag &= ~ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    char ch;
+    while ((ch = getchar()) != '\n') {
+        if (ch == '\b' || ch == 127) {
+            if (!password.empty()) {
+                cout << "\b \b";
+                password.pop_back();
+            }
+        } else {
+            password.push_back(ch);
+            cout << '*';
+        }
+    }
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+#endif
+
+    cout << endl;
+    return password;
+}
 
 bool login(const string& username, const string& password, json& fridgeContents, string& selectedId) {
     ifstream file("users.json");
@@ -24,7 +74,7 @@ bool login(const string& username, const string& password, json& fridgeContents,
             return true;
         }
     }
-     selectedId.clear();
+    selectedId.clear();
     return false;
 }
 
@@ -32,14 +82,22 @@ bool indexLogin(string& Id, json& fridgeContents) {
     string username, password;
     cout << "Enter username: ";
     cin >> username;
-    cout << "Enter password: ";
-    cin.ignore();
-    char ch;
-    password = "";
-    while ((ch = cin.get()) != '\n') {
-        cout << '*';
-        password += ch;
-    }
+    
+    password = getHiddenPassword("Enter password: ");
 
-    return login(username, password, fridgeContents, Id); // Langsung return hasil login
+    return login(username, password, fridgeContents, Id);
 }
+
+// int main() {
+//     string userId;
+//     json fridgeData;
+    
+//     if (indexLogin(userId, fridgeData)) {
+//         cout << "Login successful! User ID: " << userId << endl;
+//         cout << "Fridge contents: " << fridgeData.dump(2) << endl;
+//     } else {
+//         cout << "Login failed!" << endl;
+//     }
+
+//     return 0;
+// }
