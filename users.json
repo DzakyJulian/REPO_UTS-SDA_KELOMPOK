@@ -124,19 +124,13 @@
             {
                 "jumlah_stok": 12,
                 "kategori": "makanan",
-                "nama_barang": "chiki",
-                "tanggal_kadaluarsa": "18/04/2025"
-            },
-            {
-                "jumlah_stok": 12,
-                "kategori": "makanan",
                 "nama_barang": "chiko komo",
                 "tanggal_kadaluarsa": "21/04/2025"
             },
             {
                 "jumlah_stok": 12,
                 "kategori": "makanan",
-                "nama_barang": "chiki",
+                "nama_barang": "chiki kodomo",
                 "tanggal_kadaluarsa": "22/04/2025"
             }
         ],
@@ -156,5 +150,17 @@
         "kategori": "minuman",
         "nama_barang": "Jus",
         "tanggal_kadaluarsa": "12/12/2025"
+    },
+    {
+        "jumlah_stok": 12,
+        "kategori": "makanan",
+        "nama_barang": "chiki komodo",
+        "tanggal_kadaluarsa": "21/04/2025"
+    },
+    {
+        "jumlah_stok": 12,
+        "kategori": "makanan",
+        "nama_barang": "chiki komodo",
+        "tanggal_kadaluarsa": "12/04/2025"
     }
 ]

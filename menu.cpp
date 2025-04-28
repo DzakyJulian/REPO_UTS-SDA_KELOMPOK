@@ -287,7 +287,6 @@ void display(Node *head)
     }
 }
 
-// Fungsi untuk menghapus barang dari kulkas
 void hapusBarang(json &data, const string &Id)
 {
     int userIndex = findUserIndex(data, Id);
@@ -309,30 +308,42 @@ void hapusBarang(json &data, const string &Id)
     getline(cin, keyword);
 
     vector<int> found_indices;
-    cout << "Barang yang ditemukan:\n";
-    cout << "ID\tKategori\tNama Barang\tJumlah Stok\tTanggal Kadaluarsa\n";
+
+    cout << "\n======== HASIL PENCARIAN ========\n";
+    cout << left << setw(5) << "ID" 
+         << setw(15) << "Kategori" 
+         << setw(20) << "Nama Barang" 
+         << setw(15) << "Jumlah Stok" 
+         << setw(20) << "Tanggal Kadaluarsa" 
+         << "Status\n";
+    cout << string(95, '=') << "\n";
 
     for (int i = 0; i < fridge.size(); i++)
     {
         if (fridge[i]["nama_barang"].get<string>().find(keyword) != string::npos)
         {
             found_indices.push_back(i);
-            cout << found_indices.size() << "\t"
-                 << fridge[i]["kategori"] << "\t\t"
-                 << fridge[i]["nama_barang"] << "\t\t"
-                 << fridge[i]["jumlah_stok"] << "\t\t"
-                 << fridge[i]["tanggal_kadaluarsa"] << "\n";
+
+            string tanggal = fridge[i]["tanggal_kadaluarsa"].get<string>();
+            string status = isExpired(tanggal) ? "KADALUARSA" : "MASIH BAIK";
+
+            cout << left << setw(5) << found_indices.size()
+                 << setw(15) << fridge[i]["kategori"].get<string>()
+                 << setw(20) << fridge[i]["nama_barang"].get<string>()
+                 << setw(15) << fridge[i]["jumlah_stok"].get<int>()
+                 << setw(20) << tanggal
+                 << status << endl;
         }
     }
 
     if (found_indices.empty())
     {
-        cout << "Tidak ada barang yang cocok.\n";
+        cout << "\nTidak ada barang yang cocok.\n";
         return;
     }
 
     int id;
-    cout << "Pilih ID barang yang ingin dihapus (1 - " << found_indices.size() << "): ";
+    cout << "\nPilih ID barang yang ingin dihapus (1 - " << found_indices.size() << "): ";
     cin >> id;
     cin.ignore();
 
@@ -343,12 +354,15 @@ void hapusBarang(json &data, const string &Id)
     }
 
     int index_terhapus = found_indices[id - 1];
+    string tanggal = fridge[index_terhapus]["tanggal_kadaluarsa"].get<string>();
+    string status = isExpired(tanggal) ? "KADALUARSA" : "MASIH BAIK";
 
     cout << "\nAnda akan menghapus barang berikut:\n";
-    cout << "Kategori: " << fridge[index_terhapus]["kategori"] << endl;
-    cout << "Nama Barang: " << fridge[index_terhapus]["nama_barang"] << endl;
-    cout << "Jumlah Stok: " << fridge[index_terhapus]["jumlah_stok"] << endl;
-    cout << "Tanggal Kadaluarsa: " << fridge[index_terhapus]["tanggal_kadaluarsa"] << endl;
+    cout << "Kategori            : " << fridge[index_terhapus]["kategori"] << endl;
+    cout << "Nama Barang         : " << fridge[index_terhapus]["nama_barang"] << endl;
+    cout << "Jumlah Stok         : " << fridge[index_terhapus]["jumlah_stok"] << endl;
+    cout << "Tanggal Kadaluarsa  : " << tanggal << endl;
+    cout << "Status              : " << status << endl;
 
     char konfirmasi;
     cout << "Apakah Anda yakin ingin menghapus barang ini? (y/n): ";
@@ -376,34 +390,7 @@ void hapusBarang(json &data, const string &Id)
         cout << "Barang tidak jadi dihapus.\n";
     }
 
-    cout << "\nKembali ke menu utama...\n"
-         << endl;
-}
-
-json loadData()
-{
-    ifstream file("users.json");
-
-    if (!file.is_open())
-    {
-        cerr << "Error: Failed to open " << "users.json" << endl;
-        return {}; // Return empty JSON object
-    }
-
-    try
-    {
-        return json::parse(file);
-    }
-    catch (const json::parse_error &e)
-    {
-        cerr << "JSON parse error at byte " << e.byte << ": " << e.what() << endl;
-    }
-    catch (const exception &e)
-    {
-        cerr << "Error: " << e.what() << endl;
-    }
-
-    return {};
+    cout << "\nKembali ke menu utama...\n" << endl;
 }
 
 void clearFridgeList(Node *&head)
