@@ -290,12 +290,12 @@ void display(Node *head) {
     cout << "======== ISI KULKAS ========\n";
     cout << left << setw(5) << "ID" << setw(15) << "Kategori"
          << setw(20) << "Nama Barang" << setw(15) << "Jumlah Stok"
-         << setw(20) << "Tanggal Kadaluarsa" << "Status\n";
+         << setw(20) << "Tanggal Kadaluwarsa" << "Status\n";
 
     int i = 1;
     for (Node *curr = head; curr != nullptr; curr = curr->next) {
         string status = isExpired(curr->data.tanggal_kadaluarsa)
-                            ? "KADALUARSA"
+                            ? "KADALUWARSA"
                             : "MASIH BAIK";
 
         cout << left << setw(5) << i++
