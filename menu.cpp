@@ -569,28 +569,44 @@ void cari(Node *head) {
         cout << "Kulkas kosong, tidak ada barang untuk dicari.\n";
         return;
     }
+
     string keyword;
     cout << "Masukkan kata kunci untuk mencari barang: ";
     getline(cin, keyword);
 
-    string lowerKeyword = keyword;
-    transform(lowerKeyword.begin(), lowerKeyword.end(), lowerKeyword.begin(), ::tolower);
+    string statusFilter;
+    cout << "Filter berdasarkan status (MASIH BAIK/KADALUWARSA/kosongkan untuk semua): ";
+    getline(cin, statusFilter);
+    
+    // Convert to uppercase for case-insensitive comparison
+    transform(statusFilter.begin(), statusFilter.end(), statusFilter.begin(), ::toupper);
 
-    cout << "======== HASIL PENCARIAN ========\n";
+    cout << "\n======== HASIL PENCARIAN ========\n";
     cout << left << setw(5) << "ID" << setw(15) << "Kategori"
-              << setw(20) << "Nama Barang" << setw(15) << "Jumlah Stok"
-              << setw(20) << "Tanggal Kadaluarsa" << "Status\n";
+         << setw(20) << "Nama Barang" << setw(15) << "Jumlah Stok"
+         << setw(20) << "Tanggal Kadaluwarsa" << "Status\n";
+    cout << string(95, '=') << endl;
 
     int i = 1;
     bool found = false;
     for (Node *curr = head; curr != nullptr; curr = curr->next) {
         string lowerNamaBarang = curr->data.nama_barang;
         transform(lowerNamaBarang.begin(), lowerNamaBarang.end(), lowerNamaBarang.begin(), ::tolower);
-        if (lowerNamaBarang.find(lowerKeyword) != string::npos) {
-            string status = isExpired(curr->data.tanggal_kadaluarsa)
-                                   ? "KADALUARSA"
-                                   : "MASIH BAIK";
+        
+        string lowerKeyword = keyword;
+        transform(lowerKeyword.begin(), lowerKeyword.end(), lowerKeyword.begin(), ::tolower);
+        
+        bool namaMatches = lowerNamaBarang.find(lowerKeyword) != string::npos;
+        bool statusMatches = true;
+        
+        string status = isExpired(curr->data.tanggal_kadaluarsa) ? "KADALUWARSA" : "MASIH BAIK";
+        
+        // Apply status filter if specified
+        if (!statusFilter.empty()) {
+            statusMatches = (status == statusFilter);
+        }
 
+        if (namaMatches && statusMatches) {
             cout << left << setw(5) << i++
                  << setw(15) << curr->data.kategori
                  << setw(20) << curr->data.nama_barang
@@ -602,6 +618,13 @@ void cari(Node *head) {
     }
 
     if (!found) {
-        cout << "Tidak ada barang dengan kata kunci '" << keyword << "' ditemukan.\n";
+        cout << "Tidak ada barang yang sesuai dengan kriteria pencarian.\n";
+        cout << "Kata kunci: '" << keyword << "'";
+        if (!statusFilter.empty()) {
+            cout << ", Status: '" << statusFilter << "'";
+        }
+        cout << endl;
     }
+    
+    cout << string(95, '=') << endl;
 }
