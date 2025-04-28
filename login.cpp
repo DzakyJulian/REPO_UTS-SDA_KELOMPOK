@@ -87,17 +87,3 @@ bool indexLogin(string& Id, json& fridgeContents) {
 
     return login(username, password, fridgeContents, Id);
 }
-
-// int main() {
-//     string userId;
-//     json fridgeData;
-    
-//     if (indexLogin(userId, fridgeData)) {
-//         cout << "Login successful! User ID: " << userId << endl;
-//         cout << "Fridge contents: " << fridgeData.dump(2) << endl;
-//     } else {
-//         cout << "Login failed!" << endl;
-//     }
-
-//     return 0;
-// }
