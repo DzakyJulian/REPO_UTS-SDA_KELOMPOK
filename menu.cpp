@@ -595,6 +595,16 @@ void updateStok(json &data, const string &Id)
 
         fridge[index_update]["jumlah_stok"] = current_stock - stok_baru;
 
+        if (fridge[index_update]["jumlah_stok"] == 0)
+        {
+            fridge.erase(fridge.begin() + index_update);
+            cout << "Stok habis. Barang dihapus dari kulkas.\n";
+        }
+        else
+        {
+            cout << "Stok berhasil diperbarui.\n";
+        }
+
         // Simpan ke file
         ofstream file("users.json");
         if (file.is_open())

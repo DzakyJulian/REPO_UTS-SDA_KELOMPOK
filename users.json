@@ -130,14 +130,14 @@
             {
                 "jumlah_stok": 12,
                 "kategori": "makanan",
-                "nama_barang": "chiko komo",
-                "tanggal_kadaluarsa": "21/04/2025"
+                "nama_barang": "chiki",
+                "tanggal_kadaluarsa": "21/01/2025"
             },
             {
-                "jumlah_stok": 12,
+                "jumlah_stok": 0,
                 "kategori": "makanan",
-                "nama_barang": "chiki",
-                "tanggal_kadaluarsa": "22/04/2025"
+                "nama_barang": "sate",
+                "tanggal_kadaluarsa": "24/04/2026"
             }
         ],
         "id": "user_1744851997",
