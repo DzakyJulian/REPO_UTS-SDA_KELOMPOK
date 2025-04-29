@@ -29,8 +29,7 @@ int main() {
         if (pilihan == 1) {
             if (indexLogin(userId, fridgeContents)) { // Jika login berhasil
                 clearTerminal();
-                cout << "Login berhasil! Tekan enter untuk lanjut...";
-                cin.ignore();
+                cout << "Login berhasil! Mohon tunggu sebentar...";
                 clearTerminal();
 
                 // Load file JSON user
@@ -71,7 +70,7 @@ int main() {
                             clearTerminal();
                             parseFridgeToList(data[findUserIndex(data, userId)]["fridgeContents"], head);
                             display(head);
-                            cout << "\nTekan enter untuk melanjutkan...";
+                            cout << "\nTekan enter untuk kembali ke menu utama...";
                             cin.ignore();
                             break;
                         case 3:

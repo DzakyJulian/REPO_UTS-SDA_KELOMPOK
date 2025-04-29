@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <thread>
 #include "json.hpp"
 
 using namespace std;
@@ -126,13 +127,29 @@ void input(json& data, const string& userId) {
         cout << "\n=== TAMBAH BARANG KE KULKAS ===\n";
 
         string kategori, nama_barang, tanggal_kadaluarsa, input_jumlah;
-        int jumlah_stok;
+        int jumlah_stok, kategoriPilihan;
 
         // Input kategori
-        cout << "Masukkan kategori (makanan/minuman): ";
-        getline(cin, kategori);
-        if (!validKategori(kategori)) {
-            cout << "Kategori harus 'makanan' atau 'minuman'.\n";
+        cout << "\nPilih kategori barang yang ingin diambil:\n";
+        cout << "1. Makanan\n";
+        cout << "2. Minuman\n";
+        cout << "3. Kembali\n";
+        cout << "Pilihan: ";
+        cin >> kategoriPilihan;
+        cin.ignore();
+
+        if (kategoriPilihan == 3)
+        {
+            cout << "Kembali ke menu utama...\n";
+            return;
+        }
+
+        string kategoriDipilih = (kategoriPilihan == 1) ? "makanan" : (kategoriPilihan == 2) ? "minuman"
+                                                                                             : "";
+
+        if (kategoriDipilih == "")
+        {
+            cout << "Pilihan tidak valid.\n";
             continue;
         }
 
