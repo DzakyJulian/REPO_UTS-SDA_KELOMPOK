@@ -156,5 +156,11 @@
         "kategori": "minuman",
         "nama_barang": "Jus",
         "tanggal_kadaluarsa": "12/12/2025"
+    },
+    {
+        "fridgeContents": [],
+        "id": "user_1745909877",
+        "password": "mahes",
+        "username": "mahesa"
     }
 ]
