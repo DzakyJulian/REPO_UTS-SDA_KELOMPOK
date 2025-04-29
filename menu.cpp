@@ -307,7 +307,6 @@ void display(Node *head) {
     }
 }
 
-// Fungsi untuk menghapus barang dari kulkas
 void hapusBarang(json &data, const string &Id)
 {
     int userIndex = findUserIndex(data, Id);
@@ -325,17 +324,26 @@ void hapusBarang(json &data, const string &Id)
     }
 
     string keyword;
-    cout << "Masukkan kata kunci untuk mencari barang: ";
-    getline(cin, keyword);
+    do {
+        cout << "Masukkan kata kunci untuk mencari barang (atau ketik 'exit' untuk kembali): ";
+        getline(cin, keyword);
+
+        if (keyword == "exit")
+            return;
+
+        if (keyword.empty()) {
+            cout << "Kata kunci tidak boleh kosong. Silakan masukkan lagi.\n";
+        }
+    } while (keyword.empty());
 
     vector<int> found_indices;
 
     cout << "\n======== HASIL PENCARIAN ========\n";
-    cout << left << setw(5) << "ID" 
-         << setw(15) << "Kategori" 
-         << setw(20) << "Nama Barang" 
-         << setw(15) << "Jumlah Stok" 
-         << setw(20) << "Tanggal Kadaluarsa" 
+    cout << left << setw(5) << "ID"
+         << setw(15) << "Kategori"
+         << setw(20) << "Nama Barang"
+         << setw(15) << "Jumlah Stok"
+         << setw(20) << "Tanggal Kadaluarsa"
          << "Status\n";
     cout << string(95, '=') << "\n";
 
@@ -364,15 +372,30 @@ void hapusBarang(json &data, const string &Id)
     }
 
     int id;
-    cout << "\nPilih ID barang yang ingin dihapus (1 - " << found_indices.size() << "): ";
-    cin >> id;
-    cin.ignore();
+    do {
+        cout << "\nPilih ID barang yang ingin dihapus (1 - " << found_indices.size() << ") atau 0 untuk kembali: ";
+        cin >> id;
 
-    if (id < 1 || id > found_indices.size())
-    {
-        cout << "ID tidak valid.\n";
-        return;
-    }
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Input harus berupa angka!\n";
+            continue;
+        }
+
+        if (id == 0) {
+            cout << "Kembali ke menu utama...\n";
+            return;
+        }
+
+        if (id < 1 || id > found_indices.size()) {
+            cout << "ID tidak valid. Silakan coba lagi.\n";
+            continue;
+        }
+
+        cin.ignore(10000, '\n');
+        break;
+    } while (true);
 
     int index_terhapus = found_indices[id - 1];
     string tanggal = fridge[index_terhapus]["tanggal_kadaluarsa"].get<string>();
@@ -386,11 +409,27 @@ void hapusBarang(json &data, const string &Id)
     cout << "Status              : " << status << endl;
 
     char konfirmasi;
-    cout << "Apakah Anda yakin ingin menghapus barang ini? (y/n): ";
-    cin >> konfirmasi;
-    cin.ignore();
+    do {
+        cout << "\nApakah Anda yakin ingin menghapus barang ini? (y/n atau 'b' untuk kembali): ";
+        cin >> konfirmasi;
+        cin.ignore(10000, '\n');
 
-    if (konfirmasi == 'y' || konfirmasi == 'Y')
+        konfirmasi = tolower(konfirmasi);
+
+        if (konfirmasi == 'b') {
+            cout << "Kembali ke menu utama...\n";
+            return;
+        }
+
+        if (konfirmasi != 'y' && konfirmasi != 'n') {
+            cout << "Input tidak valid. Masukkan 'y' untuk ya, 'n' untuk tidak, atau 'b' untuk kembali.\n";
+            continue;
+        }
+
+        break;
+    } while (true);
+
+    if (konfirmasi == 'y')
     {
         fridge.erase(fridge.begin() + index_terhapus);
 
@@ -399,16 +438,16 @@ void hapusBarang(json &data, const string &Id)
         {
             file << setw(4) << data << endl;
             file.close();
-            cout << "Barang berhasil dihapus dan data disimpan ke file.\n";
+            cout << "\nBarang berhasil dihapus dan data disimpan ke file.\n";
         }
         else
         {
-            cout << "Gagal menulis ke file JSON.\n";
+            cout << "\nGagal menulis ke file JSON.\n";
         }
     }
     else
     {
-        cout << "Barang tidak jadi dihapus.\n";
+        cout << "\nBarang tidak jadi dihapus.\n";
     }
 
     cout << "\nKembali ke menu utama...\n" << endl;

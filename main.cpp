@@ -13,6 +13,7 @@ using namespace std;
 using json = nlohmann::json;
 
 void clearTerminal() {
+    this_thread::sleep_for(chrono::seconds(1));
     #ifdef _WIN32
         system("cls");
     #else
@@ -102,6 +103,7 @@ int main() {
                         case 0:
                             cout << "Logout berhasil.\n";
                             this_thread::sleep_for(chrono::milliseconds(1000));
+                            clearTerminal();
                             break;
                         default:
                             cout << "Pilihan tidak valid.\n";
