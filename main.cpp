@@ -12,17 +12,6 @@
 using namespace std;
 using json = nlohmann::json;
 
-void clearTerminal() {
-    this_thread::sleep_for(chrono::seconds(1));
-    #ifdef _WIN32
-        system("cls");
-    #else
-        system("clear");
-    #endif
-    // ANSI escape codes for additional clearing
-    cout << "\033[2J\033[1;1H";
-}
-
 int main() {
     int pilihan;
     json fridgeContents;
@@ -75,27 +64,33 @@ int main() {
 
                     switch (menuKulkas) {
                         case 1:
+                            clearTerminal();
                             input(data, userId);
                             break;
                         case 2:
+                            clearTerminal();
                             parseFridgeToList(data[findUserIndex(data, userId)]["fridgeContents"], head);
                             display(head);
                             cout << "\nTekan enter untuk melanjutkan...";
                             cin.ignore();
                             break;
                         case 3:
+                            clearTerminal();
                             parseFridgeToList(data[findUserIndex(data, userId)]["fridgeContents"], head);
                             cari(head);
                             cout << "\nTekan enter untuk melanjutkan...";
                             cin.ignore();
                             break;
                         case 4:
+                            clearTerminal();
                             hapusBarang(data, userId);
                             break;
                         case 5:
+                            clearTerminal();
                             updateStok(data, userId);
                             break;
                         case 6:  // Add this as option 6 in your menu
+                            clearTerminal();
                             filterExpiredItems(data, userId);
                             cout << "\nTekan enter untuk melanjutkan...";
                             cin.ignore();

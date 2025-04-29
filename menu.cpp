@@ -28,6 +28,17 @@ struct Node {
     Node *next;
 };
 
+void clearTerminal() {
+    this_thread::sleep_for(chrono::seconds(1));
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+    // ANSI escape codes for additional clearing
+    cout << "\033[2J\033[1;1H";
+}
+
 // Validasi kategori
 bool validKategori(const string &kategori) {
     return kategori == "makanan" || kategori == "minuman";
