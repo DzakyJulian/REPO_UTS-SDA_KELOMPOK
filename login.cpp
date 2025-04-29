@@ -60,30 +60,60 @@ string getHiddenPassword(const char* prompt) {
 bool login(const string& username, const string& password, json& fridgeContents, string& selectedId) {
     ifstream file("users.json");
     if (!file.is_open()) {
-        cerr << "Error opening JSON file.\n";
+        cerr << "Error: Database pengguna tidak ditemukan.\n";
         return false;
     }
 
-    json users;
-    file >> users;
- 
-    for (const auto& user : users) {
-        selectedId = user["id"];
-        if (user["username"] == username && user["password"] == password) {
-            fridgeContents = user["fridgeContents"];
-            return true;
+    try {
+        json users;
+        file >> users;
+        
+        if (users.empty()) {
+            cerr << "Error: Tidak ada pengguna terdaftar.\n";
+            return false;
         }
+
+        for (const auto& user : users) {
+            if (!user.contains("username") || !user.contains("password")) {
+                continue; // Skip invalid user entries
+            }
+
+            if (user["username"] == username) {
+                if (user["password"] == password) {
+                    selectedId = user.value("id", "");
+                    fridgeContents = user.value("fridgeContents", json::array());
+                    return true;
+                } else {
+                    cerr << "Error: Password salah.\n";
+                    return false;
+                }
+            }
+        }
+        
+        cerr << "Error: Username tidak ditemukan.\n";
+        return false;
+    } catch (const json::exception& e) {
+        cerr << "Error membaca data: " << e.what() << '\n';
+        return false;
     }
-    selectedId.clear();
-    return false;
 }
 
 bool indexLogin(string& Id, json& fridgeContents) {
     string username, password;
     cout << "Enter username: ";
-    cin >> username;
+    getline(cin, username);
+    
+    if (username.empty()) {
+        cerr << "Error: Username tidak boleh kosong.\n";
+        return false;
+    }
     
     password = getHiddenPassword("Enter password: ");
+    
+    if (password.empty()) {
+        cerr << "Error: Password tidak boleh kosong.\n";
+        return false;
+    }
 
     return login(username, password, fridgeContents, Id);
 }
