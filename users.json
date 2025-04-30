@@ -84,12 +84,6 @@
                 "tanggal_kadaluarsa": "02/02/2020"
             },
             {
-                "jumlah_stok": 4,
-                "kategori": "minuman",
-                "nama_barang": "air putih",
-                "tanggal_kadaluarsa": "02/02/2025"
-            },
-            {
                 "jumlah_stok": 9,
                 "kategori": "makanan",
                 "nama_barang": "taro",
@@ -118,6 +112,12 @@
                 "kategori": "makanan",
                 "nama_barang": "sate",
                 "tanggal_kadaluarsa": "06/04/2025"
+            },
+            {
+                "jumlah_stok": 10,
+                "kategori": "minuman",
+                "nama_barang": "fanta",
+                "tanggal_kadaluarsa": "09/09/2026"
             }
         ],
         "id": "user_1744823471",
@@ -146,21 +146,34 @@
         "username": "jakoy"
     },
     {
-        "jumlah_stok": 6684620,
-        "kategori": "minuman",
-        "nama_barang": "Susu",
-        "tanggal_kadaluarsa": "20/12/2025"
-    },
-    {
-        "jumlah_stok": 3,
-        "kategori": "minuman",
-        "nama_barang": "Jus",
-        "tanggal_kadaluarsa": "12/12/2025"
-    },
-    {
         "fridgeContents": [],
         "id": "user_1745909877",
         "password": "mahes",
         "username": "mahesa"
+    },
+    {
+        "fridgeContents": [],
+        "id": "user_1745973986",
+        "password": "12345678",
+        "username": "l"
+    },
+    {
+        "fridgeContents": [
+            {
+                "jumlah_stok": 18,
+                "kategori": "minuman",
+                "nama_barang": "fanta",
+                "tanggal_kadaluarsa": "09/09/2026"
+            },
+            {
+                "jumlah_stok": 10,
+                "kategori": "minuman",
+                "nama_barang": "adad",
+                "tanggal_kadaluarsa": "09/09/2026"
+            }
+        ],
+        "id": "1745974117",
+        "password": "12345678",
+        "username": "a"
     }
 ]

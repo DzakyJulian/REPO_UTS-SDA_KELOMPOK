@@ -4,9 +4,64 @@
 #include <ctime>
 #include "json.hpp"
 
+#ifdef _WIN32
+#include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
+
 using namespace std;
 using json = nlohmann::json;
 
+// Fungsi untuk input password dengan bintang (cross-platform)
+string inputPassword() {
+    string password;
+    char ch;
+
+    cout << "Masukkan password: ";
+
+#ifdef _WIN32
+    while (true) {
+        ch = _getch();
+        if (ch == 13) break; // Enter
+        else if (ch == 8) {
+            if (!password.empty()) {
+                password.pop_back();
+                cout << "\b \b";
+            }
+        } else {
+            password += ch;
+            cout << '*';
+        }
+    }
+#else
+    termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    while ((ch = getchar()) != '\n') {
+        if (ch == 127 || ch == '\b') {
+            if (!password.empty()) {
+                password.pop_back();
+                cout << "\b \b";
+            }
+        } else {
+            password += ch;
+            cout << '*';
+        }
+    }
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+#endif
+
+    cout << endl;
+    return password;
+}
+
+// Fungsi untuk mendaftarkan pengguna baru
 bool registerUser(const string& username, const string& password) {
     // Buka file dengan mode binary untuk menghindari masalah encoding
     ifstream file("users.json", ios::binary);
@@ -40,7 +95,7 @@ bool registerUser(const string& username, const string& password) {
     }
 
     // Buat ID unik
-    string userId = "user_" + to_string(time(nullptr));
+    string userId = to_string(time(nullptr));
 
     // Buat user baru
     json newUser = {

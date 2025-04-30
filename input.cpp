@@ -98,6 +98,8 @@ void input(json& data, const string& userId) {
         getline(cin, nama_barang);
         if (nama_barang.empty()) {
             cout << "Nama barang tidak boleh kosong.\n";
+            string nama_barang_lc = nama_barang;
+            transform(nama_barang_lc.begin(), nama_barang_lc.end(), nama_barang_lc.begin(), ::tolower);
             continue;
         }
 
